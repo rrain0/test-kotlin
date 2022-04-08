@@ -1,0 +1,45 @@
+
+
+public object Unit {
+   override fun toString() = "kotlin.Unit"
+}
+Обратите внимание на ключевое слово object. Это значит, что Unit является синглтоном.
+Unit ничего не возвращает, а метод toString всегда будет возвращать “kotlin.Unit”.
+При компиляции в java-код Unit всегда будет превращаться в void.
+
+
+
+
+
+
+val data = getData() { err ->
+       when (err) {
+           is InvalidStatement -> throw Exception(err.parseError)
+           is NoSuchData -> ...
+       }
+   }
+   return Data() //успешный сценарий
+}
+
+
+
+
+
+public open class Any {
+   public open operator fun equals(other: Any?): Boolean
+   public open fun hashCode(): Int
+   public open fun toString(): String
+}
+
+
+
+inline functions
+
+
+Generics: in out reified
+
+
+println("""
+SELECT * FROM City
+:sort
+""".trimIndent())
