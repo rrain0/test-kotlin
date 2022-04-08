@@ -23,6 +23,9 @@ val data = getData() { err ->
 
 
 
+утверждение, что не null
+!!
+
 
 
 public open class Any {

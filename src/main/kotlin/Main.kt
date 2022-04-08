@@ -30,5 +30,7 @@ fun main(args: Array<String>) {
 
     //getListGenericType(listOf<Number>(1,2))
 
-    stringOperators()
+    //stringOperators()
+
+    reflectionTest()
 }

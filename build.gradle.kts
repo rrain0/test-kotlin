@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.6.20"
     application
 }
 
@@ -35,6 +35,7 @@ dependencies {
     // Apache Log4j
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
     implementation("org.apache.logging.log4j:log4j-core:2.17.2")
+    implementation(kotlin("reflect"))
 }
 
 tasks.test {
@@ -47,4 +48,18 @@ tasks.withType<KotlinCompile> {
 
 application {
     mainClass.set("MainKt")
+}
+
+
+
+/*kotlin {
+    sourceSets.all {
+        languageSettings.apply {
+            languageVersion = "1.7"
+        }
+    }
+}*/
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    languageVersion = "1.7"
 }
