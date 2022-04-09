@@ -1,6 +1,19 @@
 package test
 
-fun whenStatement(){
+fun whenAndIf(){
+
+
+    fun max1(a:Int, b:Int): Int {
+        if (a>b){
+            return a
+        } else {
+            return b
+        }
+    }
+    // if is statement that returns value (instead of ternary: <> ? <> : <>)
+    fun max2(a:Int, b:Int) = if (a>b) a else b
+
+
 
     println(":: WHEN STATEMENT ::")
 

@@ -218,5 +218,29 @@ fun typesTest() {
         var arUInt:UIntArray = uintArrayOf(4u,6u) // primitive wrapped array
     }
 
+    run {
+        // TYPE-CHECKED BRANCHES
+
+        fun getStrLen(obj: Any): Int {
+            if (obj is String) {
+                // autocasted to String in this branch
+                return obj.length
+            }
+            return 0
+        }
+
+        fun getStrLen2(obj: Any): Int {
+            if (obj !is String) return 0
+            // autocasted to String
+            return obj.length
+        }
+
+        fun getStrLen3(obj: Any): Int {
+            // autocast is immediate
+            if (obj is String && obj.length > 0) return obj.length
+            return 0
+        }
+    }
+
 }
 

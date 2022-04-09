@@ -271,11 +271,23 @@ fun collections(){
     run {
         // OPERATIONS:
 
+        // "in" means "contains"
+        val list = listOf("apple", "avocado", "banana", "kiwifruit")
+        val set = setOf("apple", "avocado", "banana", "kiwifruit")
+
+        val appleInList: Boolean = "apple" in list
+
         // Operations like filter, map, ... create a NEW collection
         // If you want to specify destination collection (mutable), you can use filterTo instead of filter and so on. New content will be appended to destination.
 
         // Write operations:
         // sort() mutate this collection, but sorted() returns NEW collection
+
+        list
+            .filter { it.startsWith("a") }
+            .sortedBy { it }
+            .map { it.uppercase() }
+            .forEach { println(it) }
 
 
         // NEXT: https://kotlinlang.org/docs/collection-transformations.html
