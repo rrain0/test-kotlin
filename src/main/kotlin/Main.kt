@@ -11,12 +11,4 @@ fun main(args: Array<String>) {
     //println(listOf(1,2,3,0).sortedBy { it })
 
 
-
-    val str = "fkldsfj"
-    val strWithA = str.appendA()
-}
-
-
-fun String.appendA(): String {
-    return this+"A"
 }
