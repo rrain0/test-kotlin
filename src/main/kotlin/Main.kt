@@ -1,36 +1,22 @@
-
-import test.*
+import test.enums.enums
+import test.reflection.reflection
+import java.math.BigDecimal
+import java.math.MathContext
+import java.math.RoundingMode
+import kotlin.math.pow
 
 fun main(args: Array<String>) {
-    //println("Hello World!")
-    //println("Привет Мир!")
-
-    // Try adding program arguments via Run/Debug configuration.
     // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
-    //println("Program arguments: ${args.joinToString()}")
 
-    println()
-
+    //println(listOf(1,2,3,0).sortedBy { it })
 
 
 
-    //typesTest()
-    //equality()
-    //collections()
-    //functions()
-    //exceptions()
-    //whenStatement()
-    //writeToExcel()
+    val str = "fkldsfj"
+    val strWithA = str.appendA()
+}
 
-    //oldThreads()
-    //coroutines()
 
-    //bitwiseOperations()
-    //enumTest()
-
-    //getListGenericType(listOf<Number>(1,2))
-
-    //stringOperators()
-
-    reflectionTest()
+fun String.appendA(): String {
+    return this+"A"
 }

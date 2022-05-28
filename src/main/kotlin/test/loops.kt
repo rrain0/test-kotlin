@@ -39,6 +39,24 @@ fun loops(){
 
 
 
+    // iterate with index and value
+    for ((index,value) in listOf(1,10,100).withIndex())
+        println("the element at $index is $value")
+
+
+    // destructuring
+    for((key,value) in mapOf("1" to 1));
+    /*
+        To do so, you must implement operators:
+            operator fun <K, V> Map<K, V>.iterator(): Iterator<Map.Entry<K, V>> = entrySet().iterator()
+            operator fun <K, V> Map.Entry<K, V>.component1() = getKey()
+            operator fun <K, V> Map.Entry<K, V>.component2() = getValue()
+     */
+
+
+    // repeat loop
+    repeat(5) { println("index: $it") }
+
 
 
     // without body

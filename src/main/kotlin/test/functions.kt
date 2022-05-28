@@ -123,7 +123,7 @@ fun functions() {
     }
 
     run{
-        // Lambdas And Anonymous Functions
+        // LAMBDA & Anonymous Function
 
 
         // Lambda parameter
@@ -159,6 +159,9 @@ fun functions() {
         // anonymous function - you can omit contextual parameter types and you can declare return type (in lambda you can't)
         sum = list.reduce(0, fun(acc, elem:Int):Int { return acc + elem } )
 
+        // Создание реализации функционального интерфейса как переменной
+        val runnable: Runnable = Runnable { /*code*/ }
+
 
         // ССЫЛКА НА ФУНКЦИЮ
         /*
@@ -181,6 +184,11 @@ fun functions() {
             private fun start(){
 
             }
+        }
+
+        run {
+            var zeroToUnitLambda: ()->Unit = {}
+            var oneToUnitLambda: (arg1: Int)->Unit = {}
         }
 
         run{
@@ -208,7 +216,6 @@ fun functions() {
                 в общем и целом двойное двоеточие - это ссылка на существующую функцию)
              */
         }
-
 
 
 
@@ -288,4 +295,20 @@ private inline fun inlineFun(inlined: () -> Unit, noinline notInlined: () -> Uni
     notInlined()
     //val inlF = inlined // error - function already not an object and it is simply code that copied into this function instead of call statement
     val notinlF = notInlined
+}
+
+
+/*
+    Crossinline.
+    Note that some inline functions may call the lambdas passed to them as parameters not directly from the function body,
+    but from another execution context, such as a local object or a nested function.
+    In such cases, non-local control flow is also not allowed in the lambdas.
+    To indicate that the lambda parameter of the inline function cannot use non-local returns,
+    mark the lambda parameter with the crossinline modifier:
+ */
+private inline fun fInline(crossinline body: () -> Unit) {
+    val f = object: Runnable {
+        override fun run() = body()
+    }
+    // ...
 }

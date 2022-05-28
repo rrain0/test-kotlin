@@ -5,6 +5,23 @@ import geometry.Rectangle
 
 fun classes(){
     val square = Rectangle(Point2(0.0,0.0), Point2(0.0,1.0), Point2(1.0,1.0), "square")
+
+
+
+    // data class test:
+    val fourNumbers1 = FourNumbers(4,5)
+    val fourNumbers2 = FourNumbers(4,5)
+    val fourNumbers3 = FourNumbers(4,10)
+    println(fourNumbers1 == fourNumbers2) // true
+    println(fourNumbers1 == fourNumbers3) // false
+
+    fourNumbers2.d = 90
+    println(fourNumbers1 == fourNumbers2) // true
+    fourNumbers2.b = 91
+    println(fourNumbers1 == fourNumbers2) // false
+
+    println(fourNumbers2) // FourNumbers(a=4, b=91)
+
 }
 
 private class Test2 {
@@ -58,6 +75,17 @@ private open class Test4(val a: Int, var b: Int, c: Int) {
     }
 
 }
+
+private fun Test4() = Test4(45, 65, 44)
+
+private fun test(){
+    var t4: Test4? = null
+    t4 = Test4()
+    t4 = Test4(5)
+    t4 = Test4(5,6,6)
+}
+
+
 // private main constructor
 private open class Test5 private constructor(val a: Int)
 
@@ -95,6 +123,24 @@ private class E1 : D1() {
     override val prop: String = ""
     override fun f(){}
 }
+private open class E2 : D1() {
+    override val prop: String = ""
+    // use final with overrided members to prohibit their override
+    final override fun f(){}
+}
+
+
+
+// if no primary constructor in derived class, then you can call different constructors of base class
+private open class BaseA {
+    constructor(s1: String)
+    constructor(s1: String, s2: String)
+}
+private class DerivedA : BaseA {
+    constructor(s1: String) : super(s1)
+    constructor(s1: String, s2: String) : super(s1,s2)
+}
+
 
 
 
@@ -121,3 +167,17 @@ private class E1 : D1() {
     ● A Gradle source set (with the exception that the test source set can access the internal declarations of main).
     ● A set of files compiled with one invocation of the <kotlinc> Ant task.
  */
+
+
+// data class - автогенерация equals, hashCode, toString
+// data class is always final
+// data class can extend other classes and implement interfaces
+// equals, hashCode, toString генерируются только для переменных, объявленных в первичном конструкторе
+// в первичном конструкторе нет просто параметров, только объявляются переменные
+data class FourNumbers(val a: Int, var b: Int) : AA() {
+    val c: Int = 0
+    var d: Int = 0
+}
+open class AA{
+    var e : Int = 9
+}

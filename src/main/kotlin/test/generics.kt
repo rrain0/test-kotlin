@@ -84,3 +84,7 @@ private fun contravarianceDemo(x: ComparableMy<Number>) {
 // Also there works "is" "!is" "as" operators with T
 inline fun <reified T> getListGenericType(obj:List<T>) = println(T::class)
 // getListGenericType(listOf<Number>(1,2)) prints "class java.lang.Number (Kotlin reflection is not available)"
+
+
+
+

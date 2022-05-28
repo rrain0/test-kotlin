@@ -1,4 +1,4 @@
-package test
+package test.coroutines
 
 
 
@@ -19,9 +19,17 @@ fun coroutines(){
     }
     main()
 
+    runBlocking {
+        val one = suspendableGetOne()
+    }
+
 }
 
 
+
+suspend fun suspendableGetOne(): Int {
+    return 1
+}
 
 
 

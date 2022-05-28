@@ -22,9 +22,12 @@ val data = getData() { err ->
 }
 
 
+create function into
+"add" into Action
+"123" into Int
+12345 into Double
 
-утверждение, что не null
-!!
+
 
 
 
@@ -36,10 +39,7 @@ public open class Any {
 
 
 
-inline functions
-
-
-Generics: in out reified
+builder pattern
 
 
 println("""
