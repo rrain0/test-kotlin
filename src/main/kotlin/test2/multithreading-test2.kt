@@ -11,14 +11,14 @@ private val list1: MutableList<Int> = Collections.synchronizedList(ArrayList())
 private val list2: MutableList<Int> = Collections.synchronizedList(ArrayList())
 
 private val counter: AtomicInteger = AtomicInteger()
-private val resultList: MutableList<Int> = Collections.synchronizedList(ArrayList())
+private val resultList: MutableList<Int?> = Collections.synchronizedList(ArrayList())
 
 fun main(){
 
     repeat(size) {
         list1.add(Random().nextInt())
         list2.add(Random().nextInt())
-        resultList.add(0)
+        resultList.add(null)
     }
 
     val threadPool = Executors.newFixedThreadPool(3)
@@ -36,6 +36,5 @@ fun main(){
 
 private fun sum(){
     val i = counter.getAndIncrement()
-    if (i<0) return
     resultList[i] = list1[i] + list2[i]
 }
