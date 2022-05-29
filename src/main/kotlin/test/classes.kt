@@ -169,15 +169,5 @@ private class DerivedA : BaseA {
  */
 
 
-// data class - автогенерация equals, hashCode, toString
-// data class is always final
-// data class can extend other classes and implement interfaces
-// equals, hashCode, toString генерируются только для переменных, объявленных в первичном конструкторе
-// в первичном конструкторе нет просто параметров, только объявляются переменные
-data class FourNumbers(val a: Int, var b: Int) : AA() {
-    val c: Int = 0
-    var d: Int = 0
-}
-open class AA{
-    var e : Int = 9
-}
+
+

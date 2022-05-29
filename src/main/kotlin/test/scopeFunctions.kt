@@ -1,4 +1,4 @@
-package test
+package test.`scope-functions`
 
 
 fun scopeFunctions(){
@@ -22,4 +22,39 @@ fun scopeFunctions(){
         ● Additional effects: also
         ● Grouping function calls on an object: with
      */
+
+
+    class Turtle {
+        fun penDown(){/*...*/}
+        fun penUp(){/*...*/}
+        fun turn(degrees: Double){/*...*/}
+        fun forward(pixels: Double){/*...*/}
+    }
+
+    val myTurtle = Turtle()
+
+    // Call multiple methods on an object instance (with)
+    with(myTurtle) { //draw a 100 pix square
+        penDown()
+        for (i in 1..4) {
+            forward(100.0)
+            turn(90.0)
+        }
+        penUp()
+    }
+
+    // Configure properties of an object (apply)
+    myTurtle.apply { //draw a 100 pix square
+        penDown()
+        for (i in 1..4) {
+            forward(100.0)
+            turn(90.0)
+        }
+        penUp()
+    }
+
+    // Swap two variables
+    var a = 1
+    var b = 2
+    a = b.also { b = a }
 }

@@ -238,6 +238,10 @@ fun functions() {
         // if lambda has only one parameter, it implicitly named "it"
         val intFun2: (Int) -> Int = { it*2 }
 
+        // Factory functions - used to create instances of classes
+        // They has same name as class which they are instantiating
+        fun IntTransformer(someAdditionalArg: Any?) = IntTransformer()
+
 
         // Non-literal values of function types with and without a receiver are interchangeable
         // (A,B) -> C same as A.(B) -> C when assign them as stored in variables (not literals)
