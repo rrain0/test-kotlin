@@ -29,7 +29,7 @@ expect interface Mascot {
 // Platform-specific
 actual interface Mascot {
     actual fun display(): String {
-        TODO()
+        // there will be implementation
     }
 }
 
