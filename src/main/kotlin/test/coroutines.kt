@@ -1,14 +1,17 @@
 package test.coroutines
 
-
-
 import kotlinx.coroutines.*
 
 
+fun main(){
+    coroutines()
+}
 
-fun coroutines(){
+
+private fun coroutines(){
     // A coroutine is an instance of suspendable computation.
     // Coroutines do not create separate thread
+
 
     fun main() = runBlocking { // this: CoroutineScope
         launch { // launch a new coroutine and continue
@@ -17,7 +20,7 @@ fun coroutines(){
         }
         println("Hello") // main coroutine continues while a previous one is delayed
     }
-    main()
+    main() // prints "Hello" then "World!"
 
     runBlocking {
         val one = suspendableGetOne()

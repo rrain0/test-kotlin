@@ -8,19 +8,6 @@ fun classes(){
 
 
 
-    // data class test:
-    val fourNumbers1 = FourNumbers(4,5)
-    val fourNumbers2 = FourNumbers(4,5)
-    val fourNumbers3 = FourNumbers(4,10)
-    println(fourNumbers1 == fourNumbers2) // true
-    println(fourNumbers1 == fourNumbers3) // false
-
-    fourNumbers2.d = 90
-    println(fourNumbers1 == fourNumbers2) // true
-    fourNumbers2.b = 91
-    println(fourNumbers1 == fourNumbers2) // false
-
-    println(fourNumbers2) // FourNumbers(a=4, b=91)
 
 }
 

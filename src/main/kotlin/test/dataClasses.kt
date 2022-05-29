@@ -18,6 +18,21 @@ fun dataClasses(){
     var fnCopied = fn.copy()
     fnCopied = fn.copy(b=20)
 
+
+    val fourNumbers1 = FourNumbers(4,5)
+    val fourNumbers2 = FourNumbers(4,5)
+    val fourNumbers3 = FourNumbers(4,10)
+    println(fourNumbers1 == fourNumbers2) // true
+    println(fourNumbers1 == fourNumbers3) // false
+
+    fourNumbers2.d = 90
+    println(fourNumbers1 == fourNumbers2) // true
+    fourNumbers2.b = 91
+    println(fourNumbers1 == fourNumbers2) // false
+
+    println(fourNumbers2) // FourNumbers(a=4, b=91)
+
+
     // Standard data classes: Pair & Triple
     val pair = Pair("1",1)
     val triple = Triple("1",1,true)
