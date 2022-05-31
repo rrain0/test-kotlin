@@ -15,12 +15,13 @@
         typesTest()
 */
 
-package test
+package test.types
 
 
 
 fun typesTest() {
 
+    // Nullable type
     run {
         // <any type>? - nullable type - тип может принимать значение null, если после имени типа поставить знак вопроса
 
@@ -33,7 +34,7 @@ fun typesTest() {
         len = list?.size ?: 0
     }
 
-
+    // Unit
     run {
         // Unit - используется как возвращаемый тип функции, если функция ничего не возвращает (void in Java)
         // Unit - The type with only one value: the Unit object. This type corresponds to the void type in Java.
@@ -44,6 +45,7 @@ fun typesTest() {
         fun unit4(): Unit { return Unit }
     }
 
+    // Nothing
     run {
         // тип Nothing - ничего
         // описан в коде как:
@@ -63,6 +65,7 @@ fun typesTest() {
     }
 
 
+    // Any
     run {
         // Any - Root Class (like object in Java)
         // Имеет методы equals (==), hashCode, toString
@@ -76,9 +79,10 @@ fun typesTest() {
 
 
 
-    // блок кода - иначе котлин считает это лямбдой
+    // блок кода run {...} - иначе котлин считает это лямбдой
+
+    // КОНСТАНТЫ
     run {
-        // КОНСТАНТЫ
 
         // объявление константы, cannot be reassigned
         val num1:Int = 8
@@ -105,9 +109,11 @@ fun typesTest() {
     // ЧИСЛА
     // В котлин нет (вообще нет, и в меньшую сторону тоже) неявных преобразований между числами!!! (тк всё объекты)
     // В арифметических операциях преобразования есть (как в Java)
-    // JVM хранит объекты чисел (kotlin Int) в диапазоне байта [-128; 127] и даже сравнение по ссылке тут окажется равным, но рассчитывать на это естественно не нужно
+    // JVM хранит объекты чисел (kotlin Int) в диапазоне байта [-128; 127]
+    // и даже сравнение по ссылке тут окажется равным, но рассчитывать на это естественно не нужно
+
+    // ЦЕЛЫЕ ТИПЫ
     run {
-        // ЦЕЛЫЕ ТИПЫ
         var byte:Byte = 127 // 1 байт [-128; 127]
         var short:Short = 32767 // 2 байта [-32768; 32767]
         var int:Int = 2_147_483_647 // 4 байта [-2,147,483,648 (-2^31); 2,147,483,647 (2^31 - 1)]
@@ -131,8 +137,9 @@ fun typesTest() {
         val hexLongLiteral1 = 0xFFFL
         val hexLongLiteral2 = 0xFFFFFFFFFFFFF
     }
+
+    // UNSIGNED INTEGER TYPES
     run {
-        // UNSIGNED INTEGER TYPES
         var ubyte:UByte = 255u // 1 байт [0; 255]
         var ushort:UShort = 65535u // 2 байта [0; 65535]
         var uint:UInt = 4_294_967_295u // 4 байта [0; 4_294_967_295 (2^32 - 1)]
@@ -167,14 +174,16 @@ fun typesTest() {
                 (-6).toUInt().toString(2).padStart(32,'0')
         ) // => 11111111111111111111111111111010 // all 32 bits
     }
+
+    // ДРОБНЫЕ ТИПЫ (с плавающей точкой)
     run {
-        // ДРОБНЫЕ ТИПЫ (с плавающей точкой)
 
         var float:Float = 127.5f // литерал Float (обязательно с f)
         var double:Double = 127.0 // литерал Double (обязательно с точкой)
     }
+
+    // NUMBER TYPE CASTING
     run {
-        // NUMBER TYPE CASTING
         // У каждого числового типа есть эти методы
         var a = 8
         var byte:Byte = 120.toByte()
@@ -188,8 +197,8 @@ fun typesTest() {
         (120).toByte()
     }
 
+    // ARRAYS
     run {
-        // ARRAYS
         println("ARRAYS")
 
         var ar1:Array<Int> = arrayOf(1,2,3)
@@ -216,10 +225,11 @@ fun typesTest() {
 
         var arInt:IntArray = intArrayOf(4,6,) // primitive wrapped array
         var arUInt:UIntArray = uintArrayOf(4u,6u) // primitive wrapped array
+        arUInt = arInt.toUIntArray()
     }
 
+    // TYPE-CHECKED BRANCHES
     run {
-        // TYPE-CHECKED BRANCHES
 
         fun getStrLen(obj: Any): Int {
             if (obj is String) {
@@ -242,5 +252,22 @@ fun typesTest() {
         }
     }
 
+    // TYPE CAST
+    run {
+        // if cast is wrong then exception
+        var o1: Any? = "lkdsjf"
+        var o2: Any? = null
+        o1 as String // cast to String
+        (o2 as? Int)?.let {} // cast to Int if nonnull & doing smth
+        o2 as Int?// cast to Int?
+
+        o2.cast<Int?>()?.let {}// cast to Int? & doing smth
+    }
+
 }
+
+
+
+// Cast function
+inline fun <reified T> Any?.cast() = this as T
 
