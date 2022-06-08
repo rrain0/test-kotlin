@@ -58,6 +58,9 @@ fun typesTest() {
         // может быть только null
         var b:Nothing? = null
 
+        var c:Unit? = Unit
+        c = null
+
         // функция, возвращающая Nothing не может завершиться нормально
         fun throwException(): Nothing = throw Exception("exception")
         fun endlessLoop(): Nothing { while (true); }
