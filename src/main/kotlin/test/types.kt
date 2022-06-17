@@ -19,7 +19,12 @@ package test.types
 
 
 
-fun typesTest() {
+fun main(){
+    typesTest()
+}
+
+
+private fun typesTest() {
 
     // Nullable type
     run {
@@ -139,6 +144,8 @@ fun typesTest() {
         val hexIntLiteral = 0xFFF
         val hexLongLiteral1 = 0xFFFL
         val hexLongLiteral2 = 0xFFFFFFFFFFFFF
+
+        println("5 / 3: ${5 / 3}") // => 1 - деление целых типов всегда возвращает целый тип
     }
 
     // UNSIGNED INTEGER TYPES
@@ -183,6 +190,8 @@ fun typesTest() {
 
         var float:Float = 127.5f // литерал Float (обязательно с f)
         var double:Double = 127.0 // литерал Double (обязательно с точкой)
+
+        println("5 / 3.0: ${5 / 3.0}") // => 1.6666666666666667 - один из типов - дробный, так что всё преобразуется к дробным
     }
 
     // NUMBER TYPE CASTING
@@ -198,6 +207,37 @@ fun typesTest() {
         var char:Char = a.toChar()
         // есть ещё toUByte, toUShort, toUInt, toULong
         (120).toByte()
+    }
+
+    // BOOLEAN
+    run {
+        var bool: Boolean = true
+        var bool2 = false as Boolean?
+        println(bool && bool2?:false) // lazy AND
+        println(bool || bool2!!) // lazy OR
+        println(!bool) // NOT
+    }
+
+    // CHARACTER
+    println(); println("CHARACTER:")
+    run {
+        val aChar: Char = 'a'
+
+        // Special chars (escape sequences): \t \b \n \r \' \" \\ \$
+        val newLine = '\n'
+        val slash = '\\'
+        // Any Unicode char: '\u****' e.g. '\uFF00' '\uff00'
+        var unicodedChar = '\uFF00'
+        unicodedChar = '\uff00'
+
+        println("'a'.code: ${'a'.code}")
+        println("'a'.category: ${'a'.category}")
+
+        println("48.toChar(): ${48.toChar()}")
+
+        //println(" ${'a'.digitToInt()}")
+        println(" ${'9'.digitToIntOrNull()}")
+        println(" ${'9'.digitToIntOrNull(2)}")
     }
 
     // ARRAYS
@@ -226,9 +266,11 @@ fun typesTest() {
         var arOfNulls:Array<String?> = arrayOfNulls<String>(5) // nullable array
         var arEmpty:Array<String> = emptyArray<String>() // array with len = 0
 
+        // PRIMITIVE ARRAYS
         var arInt:IntArray = intArrayOf(4,6,) // primitive wrapped array
-        var arUInt:UIntArray = uintArrayOf(4u,6u) // primitive wrapped array
+        var arUInt:UIntArray = uintArrayOf(4u,6u) // primitive wrapped unsigned array
         arUInt = arInt.toUIntArray()
+        var boolArr: BooleanArray = booleanArrayOf(true, false, true)
     }
 
     // TYPE-CHECKED BRANCHES

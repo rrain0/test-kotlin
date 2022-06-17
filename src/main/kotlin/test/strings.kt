@@ -19,6 +19,19 @@ fun strings(){
         println(s1 sp s2) // "1 2"
     }
 
+    // Проход по строке
+    run {
+        val str = "dlksjflkajls"
+
+        // for..in
+        for (char in str) {
+            print("$char ")
+        }
+        println()
+
+        str.forEachIndexed { index, char -> print("$index: $char  ")}
+        println()
+    }
 
     run {
         // Build a string:
@@ -41,6 +54,10 @@ fun strings(){
         val ss = "sdklfjdlksj $s $s1"
         // expression
         val ss2 = "sldjflskdjf ${s.substring(0)} sdlkjf ${s1.substring(1)}"
+        // templates in multiline string
+        val ssm = """multiline: $s1 ${ss2.substring(0)}"""
+        // escaping of '$'
+        val ssmEscaped = """multilene: ${'$'}sometning"""
     }
 
     run {
@@ -60,6 +77,13 @@ fun strings(){
             Java
         """.trimIndent() // makes 2 spaces before Kotlin
         println(s)
+
+        s = """
+            |Tell me and I forget.
+            |Teach me and I remember.
+            |Involve me and I learn.
+            |(Benjamin Franklin)
+        """.trimMargin() // default is '|'
 
         s = """
             #  Kotlin

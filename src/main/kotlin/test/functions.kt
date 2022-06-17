@@ -135,6 +135,7 @@ fun functions() {
         fun11(1, "1", "2", "3") { println("i am the last parameter lambda!") }
 
 
+        // GENERIC function (lambdas can't declare generic types)
         fun <T,R> Collection<T>.reduce( initial: R, combine: (R,T)->R ): R { // or you can name args: combine: (accumulator: R, nextElem: T)->T
             var accumulator = initial
             for (elem in this){
@@ -256,9 +257,13 @@ fun functions() {
         var repeatFun6: (String,Int) -> String = repeatFun1
 
 
+        //var repeatFun = String.{ times -> repeat(times) } - in lambda you can't explicitly specify receiver type
+
+
         // Invoking functions
         repeatFun1.invoke("aa",8)
         "aa".repeatFun1(8)
+
 
 
         // Explicitly return from lambda using labelled return@label
@@ -267,7 +272,10 @@ fun functions() {
         strings.filter { it.length == 5 }.sortedBy { it }.map { it.uppercase() }
         // implicit labels is function names in which you passed lambda
         // explicit label is label@{ }
-        strings.filter { return@filter it.length == 5 }.sortedBy { return@sortedBy it }.map mapLambda@{ return@mapLambda it.uppercase() }
+        strings
+            .filter { return@filter it.length == 5 } // implicit auto label name is 'filter'
+            .sortedBy { return@sortedBy it } // implicit auto label name is 'sortedBy'
+            .map mapLambda@{ return@mapLambda it.uppercase() } // explicit label name is 'mapLambda'
 
 
         // _ - unused lambda variables marks by underscore

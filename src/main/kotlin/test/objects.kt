@@ -2,6 +2,9 @@ package test.objects
 
 // object can't have constructor
 
+// If you return an object, then its type is Any.
+// You can name object or specify one of its supertypes as return type
+
 // Named object
 private object SingletonObject { // name is required in object declaration
     val name = "Single"
@@ -42,3 +45,22 @@ fun objects(){
     }
 
 }
+
+
+
+private class Test{
+
+    // companion objects can extend or implement something
+    companion object : Comparable<Int>{
+        // use @JvmStatic to make this member of companion object compiled as static
+        //@JvmStatic
+        val i = 10
+        override fun compareTo(other: Int) = i.compareTo(other)
+    }
+
+
+
+}
+// you can access companion object 2 ways:
+private var testCompanionObject = Test.Companion
+private var testCompanionObject2 = Test
