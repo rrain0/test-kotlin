@@ -11,6 +11,9 @@ fun classes(){
 
 }
 
+
+// ЛЕНИВАЯ ИНИЦИАЛИЗАЦИЯ: by lazy
+// lateinit
 private class Test2 {
 
     // Ленивая ининциализация

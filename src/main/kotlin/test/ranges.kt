@@ -1,6 +1,13 @@
 
 package test.ranges
 
+import geometry.Point2
+import kotlin.math.sqrt
+
+fun main(){
+    //ranges()
+    customRange()
+}
 
 /*
     RANGES
@@ -12,7 +19,7 @@ package test.ranges
     !!! Attention 10L in 0..100 is false because type mismatch (Long value not in Int range)
  */
 
-fun ranges() {
+private fun ranges() {
 
     var i = 4
     if (i in 1.rangeTo(4)) { // equivalent of 1 <= i && i <= 4
@@ -47,7 +54,7 @@ fun ranges() {
     println(Version(1, 20) in versionRange)
 */
 
-
+1000000..3000000000 step 5
 
     // Progressions implement Iterable<N>, where N is Int, Long, or Char respectively,
     // so you can use them in various collection functions like map, filter, and other.
@@ -56,4 +63,101 @@ fun ranges() {
 
     println((0..5).joinToString(",",transform={":val$it"}))
 
+
+    println(('a'..'z').joinToString(", ", transform = {"char: $it"}))
+    println(('z' downTo 'a').joinToString(", ", transform = {"char: $it"}))
+
 }
+
+
+private fun customRange(){
+    run {
+        val a = Point2(2.0,2.0)
+        val b = Point2(4.0, 8.0)
+
+        println("$a..$b:")
+
+        for (pt in a..b){
+            println(pt)
+        }
+        println()
+    }
+    run {
+        val a = Point2(2.0,2.0)
+        val b = Point2(4.0, 4.0)
+
+        println("$a..$b:")
+
+        for (pt in a..b){
+            println(pt)
+        }
+        println()
+    }
+    run {
+        val a = Point2(2.0,2.0)
+        val b = Point2(4.0, 4.0)
+
+        println("Point(3.0,3.0) in $a..$b step ${sqrt(2.0)}: ${Point2(3.0,3.0) in a..b step sqrt(2.0)}") // true
+
+        println()
+    }
+    run {
+        val a = Point2(2.0,2.0)
+        val b = Point2(8.0, 8.0)
+
+        println("$a..$b step ${sqrt(2.0)}:")
+
+        for (pt in a..b step sqrt(2.0)){
+            println(pt)
+        }
+        println()
+    }
+    run {
+        val a = Point2(2.0,2.0)
+        val b = Point2(0.0, 0.0)
+
+        println("$a..$b step ${sqrt(2.0)}:")
+
+        for (pt in a..b step sqrt(2.0)){
+            println(pt)
+        }
+        println()
+    }
+    run {
+        val a = Point2(2.0,2.0)
+        val b = Point2(0.0, 8.0)
+
+        println("$a..$b:")
+
+        for (pt in a..b){
+            println(pt)
+        }
+        println()
+    }
+    run {
+        val a = Point2(2.0,2.0)
+        val b = Point2(10.0, 2.0)
+
+        println("$a..$b:")
+
+        for (pt in a..b){
+            println(pt)
+        }
+        println()
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
