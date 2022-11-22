@@ -1,5 +1,9 @@
 package test
 
+// <T> is <T : Any?>
+// to be non-nullable need <T : Any>
+// if fun return type is T then T is the same as T from definition
+
 /*
     Simply <Type> is invariant
 

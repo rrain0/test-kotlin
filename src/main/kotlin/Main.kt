@@ -9,13 +9,14 @@ import kotlin.system.measureTimeMillis
 fun main(args: Array<String>) {
     // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
 
-    //println(listOf(1,2,3,0).sortedBy { it })
+    println("Hello Kotlin! ${listOf(1,2,3,0).sortedBy { it }}")
+
 
 
     //timeMeasurement()
+    val list: List<String> = listOf("dsf")
+    val mutableList: MutableList<String> = mutableListOf("dsf")
 }
-
-
 
 
 private fun timeMeasurement(){
@@ -24,3 +25,5 @@ private fun timeMeasurement(){
     }
     println("measured time: $time")
 }
+
+

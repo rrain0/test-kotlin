@@ -40,13 +40,28 @@ fun someElseMultithreading(){
 private fun Any.wait() = (this as java.lang.Object).wait()
 
 
-private class A{
+
+private class Volatileable{
+    // JVM volatile property
+    @Volatile var volatileProp = 5
+}
+
+
+// To synchronize use synchronized block or @Synchronized annotation
+private class SyncFun{
     fun syncFun() = synchronized(this) {
         // wait()/notifyAll() are discouraged, but you still can call it:
         (this as java.lang.Object).notifyAll()
     }
 
+    @Synchronized
+    fun syncFun2() {
+        // wait()/notifyAll() are discouraged, but you still can call it:
+        (this as java.lang.Object).notifyAll()
+    }
+
 }
+
 fun oldThreads(){
     val t = Thread {
         Thread.sleep(3000)
@@ -56,7 +71,7 @@ fun oldThreads(){
     println("Hello")
 
 
-    A().syncFun()
+    SyncFun().syncFun()
 
 
     val obj = Any()

@@ -1,11 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.21"
+    kotlin("jvm") version "1.7.21"
     application
-
-    // For annotation processing
-    //id("com.google.devtools.ksp") version "1.6.21-1.0.5"
 }
 
 
@@ -22,15 +19,18 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
     // https://mvnrepository.com/artifact/org.apache.poi/poi
     implementation("org.apache.poi:poi:5.2.2")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
 
+    // html & xml parse & work
+    implementation("org.jsoup:jsoup:1.15.3")
+
     // Apache Log4j
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
-    implementation("org.apache.logging.log4j:log4j-core:2.17.2")
+    implementation("org.apache.logging.log4j:log4j-core:2.19.0")
     implementation(kotlin("reflect"))
 
 
@@ -76,7 +76,8 @@ application {
         }
     }
 }*/
+/*
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     languageVersion = "1.7"
-}
+}*/

@@ -314,5 +314,5 @@ private fun typesTest() {
 
 
 // Cast function
-inline fun <reified T> Any?.cast() = this as T
+private inline fun <reified T> Any?.cast() = this as T
 

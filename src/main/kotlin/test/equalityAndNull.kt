@@ -50,7 +50,7 @@ private class Point(var x:Double, var y:Double, var name:String) {
 private fun nulls(){
     fun getNullableList(): List<String>? = listOf("apple")
 
-    // если полученное значение==null, то вернётся дефолтное, стоящее после ?:
+    // ?: если полученное значение==null, то вернётся дефолтное, стоящее после ?:
     var list = getNullableList() ?: emptyList()
 
 

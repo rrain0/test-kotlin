@@ -31,8 +31,6 @@ private class Test2 {
     init {
         if (::prop2.isInitialized) println("prop2 is initialized")
         else println("prop2 is NOT initialized")
-
-
     }
 
     // for "static" objects
@@ -41,10 +39,22 @@ private class Test2 {
     }
 
     init {
-
+        // init блоки выполняются в порядке объявления в коде
     }
 
 }
+
+
+class WithExtensionProperties{
+    var prop = 'a'
+}
+// extension property can't have own backing field
+val WithExtensionProperties.extProp get() = 6
+var WithExtensionProperties.propCode
+    get() = this.prop.code
+    set(charCode: Int){ this.prop = charCode.toChar() }
+var WithExtensionProperties.propNewName by WithExtensionProperties::prop
+
 
 // Constructors
 private open class Test4(val a: Int, var b: Int, c: Int) {
@@ -52,6 +62,8 @@ private open class Test4(val a: Int, var b: Int, c: Int) {
     var e: Int = c
     var f: Int? = null
 
+    // init block has primary constructor parameters
+    // if no primary constructor - init blocks run before secondary constructors in declaration order
     init {
         d = c
     }
@@ -78,6 +90,29 @@ private fun test(){
 
 // private main constructor
 private open class Test5 private constructor(val a: Int)
+
+// if class has no constructors then automatically there is a
+// primary constructor without parameters
+
+
+// If there is primary constructor - it must be called directly or via secondary constructors
+// If no primary constructor - secondary constructors can call without primary
+
+
+
+/*
+    Порядок инициализации объекта при наследовании:
+    ● вызов дополнительного конструктора наследника;
+    ● вызов первичного конструктора наследника;
+    ● вызов дополнительного конструктора родителя;
+    ● вызов первичного конструктора родителя;
+    ● выполнение блоков init родителя;
+    ● выполнение кода тела дополнительного конструктора родителя;
+    ● выполнение блока init наследника;
+    ● выполнение кода тела дополнительного конструктора наследника.
+ */
+
+
 
 
 
@@ -121,7 +156,7 @@ private open class E2 : D1() {
 
 
 
-// if no primary constructor in derived class, then you can call different constructors of base class
+// If no primary constructor in derived class, then you can call different constructors of base class
 private open class BaseA {
     constructor(s1: String)
     constructor(s1: String, s2: String)

@@ -1,11 +1,18 @@
 package test.regexp
 
+import utils.dot
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Path
 
 fun main(){
     //regexp()
-    regexBatchRenameFiles()
+    BatchRenameFiles.renameBySeriesNumber(
+        """M:\ВИДЕО\[anime]\Tate no Yuusha no Nariagari  Восхождение героя щита\Tate no Yuusha no Nariagari S02 13 eps JAM 1080p""",
+        listOf(Regex("""\[JAM\] Tate no Yuusha no Nariagari S02E(?<n>\d{2})( END)? ?\[1080p\]\.mp4""")),
+        getOutputName = { """Tate no Yuusha no Nariagari s2e${it.epStr} ${if (it.ep==it.commonInfo!!.lastEp) "END " else ""}JAM 1080p.mp4""" },
+        writeNames = false
+    )
 }
 
 fun regexp(){
@@ -26,14 +33,14 @@ fun regexp(){
         println(matchGroupsMap)
 
 
-        val map = mapOf(
+        val matchGroupValuesMap = mapOf(
             "n1" to matchResult.groups["n1"]!!.value,
             "n2" to matchResult.groups["n2"]!!.value,
             "n3" to matchResult.groups["n3"]!!.value,
             "n4" to matchResult.groups["n4"]!!.value,
         )
 
-        println(map)
+        println(matchGroupValuesMap)
     }
 
 
@@ -49,103 +56,93 @@ fun regexp(){
 }
 
 
-fun regexBatchRenameFiles(){
 
-    fun tenseiShiraraSlimeDattaKen(){
-        val patterns = listOf(
-            Regex("""\[JAM_CLUB]_Tensei_Shitara_Slime_Datta_Ken_(?<n>\d{2})_\[1080p]\[RUS]\[DUB]\.mp4"""),
-            Regex("""Tensei Shitara Slime Datta Ken - (?<n>\d{2}).*\.mp4""", RegexOption.IGNORE_CASE),
-        )
-        File("L:\\ВИДЕО\\О моём перерождении в слизь\\[03] 2 сезон")
-            .listFiles()!!.forEach { f ->
-                val fName = f.name
+private object BatchRenameFiles {
+
+    fun addExtension(path: String, extension: String){
+        File(path).listFiles()?.forEach { f ->
+            if (f.isFile) Files.move(f.toPath(), f.toPath().parent.resolve(f.name dot extension))
+        }
+    }
+
+
+
+    class CommonInfo(var firstEp: Int, var lastEp: Int)
+    class InfoWithMatch(
+        var path: String,
+        var name: String,
+        var ep: Int? = null,
+        var match: MatchResult,
+        var commonInfo: CommonInfo? = null,
+    )
+    open class Info(
+        var path: String,
+        var name: String,
+        var ep: Int? = null,
+        var commonInfo: CommonInfo? = null,
+        var epStr: String? = null,
+        var newName: String? = null
+    )
+    // overload to remove generics
+    fun renameBySeriesNumber(
+        containingFolder: String,
+        namePatterns: List<Regex> = namesPatternDefault,
+        getEpInt: (match: MatchResult)->Int = ::getEpIntDefault,
+        getOutputName: (info: Info)->String,
+        writeNames: Boolean = false
+    ) = renameBySeriesNumber(containingFolder, namePatterns, getEpInt, ::mapToInfoDefault, getOutputName, writeNames)
+    fun <T : Info>renameBySeriesNumber(
+        containingFolder: String,
+        namePatterns: List<Regex> = namesPatternDefault,
+        getEpInt: (match: MatchResult)->Int = ::getEpIntDefault,
+        mapToInfo: (info: InfoWithMatch)->T,
+        getOutputName: (info: T)->String,
+        writeNames: Boolean = false
+    ){
+        val seriesMap = mutableMapOf<Int,InfoWithMatch>()
+        File(containingFolder).listFiles()!!.forEach { f ->
+            if (f.isFile){
+                val name = f.name
                 var matchResult: MatchResult? = null
-                for (p in patterns){
-                    matchResult = p.matchEntire(fName)
+                for (p in namePatterns){
+                    matchResult = p.matchEntire(name)
                     if (matchResult!=null) break
                 }
 
                 if (matchResult!=null){
-                    val ep = matchResult!!.groups["n"]!!.value.toInt()-24
-                    val part = (ep-1)/12+1
-                    val partEp = (ep-1)%12+1
-                    val newName = "Tensei Shitara Slime Datta Ken S02E${ep.toString().padStart(2,'0')} (S02P${part}E${partEp.toString().padStart(2,'0')}) [JAM CLUB][1080p][RUS][DUB].mp4"
-                    println("old: $fName")
-                    println("new: $newName")
-                    Files.move(f.toPath(), f.toPath().parent.resolve(newName))
+                    val info = InfoWithMatch(containingFolder, name, null, matchResult)
+                    info.ep = getEpInt(info.match)
+                    if (info.ep in seriesMap) throw RuntimeException("Duplicate series number: ${info.ep}")
+                    seriesMap[info.ep!!] = info
                 }
             }
+        }
+
+        val commonInfo = CommonInfo(seriesMap.keys.min(), seriesMap.keys.max())
+
+        val seriesList = seriesMap.values.sortedBy { it.ep }
+            .map {
+                it.commonInfo = commonInfo
+                val info = mapToInfo(it)
+                info.epStr = info.epStr ?: epToStrDefault(info.ep!!, commonInfo.lastEp)
+                info
+            }
+            .onEach {
+                it.newName = getOutputName(it)
+            }
+
+        seriesList.forEach { println("${it.ep} - ${it.name} -> ${it.newName}") }
+        println("total: ${seriesList.size}")
+
+        if (writeNames) seriesList.forEach {
+            Files.move(Path.of(it.path, it.name), Path.of(it.path, it.newName))
+        }
     }
-
-    fun nanatsuNoTaizai(){
-        val patterns = listOf(
-            Regex("""Яростное правосудие \((?<n>\d{2})\)\.mkv"""),
-        )
-        File("J:\\ВИДЕО\\Семь Смертных Грехов  Nanatsu No Taizai\\[06] S04 Суд Дракона  Fundo no Shinpan\\Семь смертных грехов - Яростное правосудие (2021 WEBRip) SHIZA Project, AniDub")
-            .listFiles()!!.forEach { f ->
-                val fName = f.name
-                var matchResult: MatchResult? = null
-                for (p in patterns){
-                    matchResult = p.matchEntire(fName)
-                    if (matchResult!=null) break
-                }
-
-                if (matchResult!=null){
-                    val ep = matchResult!!.groups["n"]!!.value.toInt()
-                    val newName = "Nanatsu no Taizai Fundo no Shinpan ${ep.toString().padStart(2,'0')} (2021) [WEBRip 1080p][SHIZA Project, AniDub].mkv"
-                    println("old: $fName")
-                    println("new: $newName")
-                    Files.move(f.toPath(), f.toPath().parent.resolve(newName))
-                }
-            }
-    }
-
-    fun addExtension(){
-        File("J:\\ВИДЕО\\Семь Смертных Грехов  Nanatsu No Taizai\\[06] S04 Суд Дракона  Fundo no Shinpan\\Семь смертных грехов - Яростное правосудие (2021 WEBRip) SHIZA Project, AniDub")
-            .listFiles()!!.forEach { f ->
-                Files.move(f.toPath(), f.toPath().parent.resolve(f.name+".mkv"))
-            }
-    }
-
-    fun kimetsuNoYaiba(){
-        val map = mutableMapOf<String,String>()
-
-        val nameFrom = Regex("""(?<n>\d{2}).(?<name>.*)\.mkv""")
-        File("""E:\ТОРРЕНТЫ\Kimetsu.no.Yaiba.s01.2019.BDRip.1080p""")
-            .listFiles()!!.forEach { f ->
-                val fName = f.name
-                val matchResult = nameFrom.matchEntire(fName)!!
-                map.put(matchResult.groups["n"]!!.value, matchResult.groups["name"]!!.value.replace('.',' '))
-            }
-
-        //println(map)
-
-        val patterns = listOf(
-            Regex("""\[Moozzi2] Kimetsu no Yaiba - (?<n>\d{2}) \(BD 1920x1080 x\.265-10Bit FLAC\)\.mkv"""),
-        )
-        File("""J:\ВИДЕО\Клинок Рассекающий Демонов  Kimetsu no Yaiba\[01] S1\[Moozzi2] Kimetsu no Yaiba [BD 1080p HEVC-10Bit FLAC][Wakanim]""")
-            .listFiles()!!.forEach { f ->
-                val fName = f.name
-                var matchResult: MatchResult? = null
-                for (p in patterns){
-                    matchResult = p.matchEntire(fName)
-                    if (matchResult!=null) break
-                }
-
-                if (matchResult!=null){
-                    val epInt = matchResult!!.groups["n"]!!.value.toInt()
-                    val ep = epInt.toString().padStart(2,'0')
-                    val newName = "[Moozzi2] Kimetsu no Yaiba $ep - ${map[ep]} [BD 1080p HEVC-10Bit FLAC][Wakanim].mkv"
-                    println("old: $fName")
-                    println("new: $newName")
-                    Files.move(f.toPath(), f.toPath().parent.resolve(newName))
-                }
-            }
-    }
-
-    //tenseiShiraraSlimeDattaKen()
-    //nanatsuNoTaizai()
-    //addExtension()
-    //kimetsuNoYaiba()
+    private val namesPatternDefault = listOf(Regex(""".*?(?<n>\d{2,3}).*"""))
+    private fun getEpIntDefault(match: MatchResult) = match.groups["n"]!!.value.toInt()
+    private fun mapToInfoDefault(info: InfoWithMatch) = Info(info.path, info.name, info.ep, info.commonInfo)
+    private fun epToStrDefault(currEp: Int, lastEp: Int) = currEp.toString().padStart(lastEp.toString().length, '0')
 
 }
+
+
