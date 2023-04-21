@@ -4,13 +4,15 @@ package test.`scope-functions`
 fun scopeFunctions(){
     // let run with also apply
     /*
-          Function    Object reference    Return value      Is extension function
-        ● let         it                  Lambda result     Yes
-        ● run         this                Lambda result     Yes
-          run         -                   Lambda result     No: called without the context object
-        ● with        this                Lambda result     No: takes the context object as an argument.
-        ● apply       this                Context object    Yes
-        ● also        it                  Context object    Yes
+          Function    Object reference    Return value                       Is extension function
+        ● let         it                  Lambda result                      Yes
+        ● run         this                Lambda result                      Yes
+          run         -                   Lambda result                      No: called without the context object
+        ● with        this                Lambda result                      No: takes the context object as an argument.
+        ● apply       this                this                               Yes
+        ● also        it                  this                               Yes
+        ● takeIf      this                this if predicate is true          Yes
+        ● takeUnless  this                this if predicate is false         Yes
      */
     /*
         Use cases:
@@ -57,4 +59,5 @@ fun scopeFunctions(){
     var a = 1
     var b = 2
     a = b.also { b = a }
+
 }

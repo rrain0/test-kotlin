@@ -17,9 +17,7 @@ fun loops(){
     }
 
     // do while
-    do {
-
-    } while (i++<200)
+    do { } while (i++<200)
 
 
 

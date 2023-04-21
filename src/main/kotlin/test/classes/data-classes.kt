@@ -1,11 +1,11 @@
-package test.`data-classes`
+package test.classes.`data-classes`
 
 
 
 // data class - автогенерация equals(), hashCode(), toString(), componentN(), copy()
 // data class is always final, cannot be abstract, open, sealed, inner
 // data class can extend other classes and implement interfaces
-// В первичном конструкторе нет просто параметров, только объявляются переменные (val / var), но можно указать дефолтные значения
+// В первичном конструкторе нет просто параметров, только объявляются переменные (val / var) и можно указать дефолтные значения
 // Первичный конструктор должен иметь хотя бы 1 параметр
 
 // equals(), hashCode(), toString(), componentN() - только для переменных первичного конструктора

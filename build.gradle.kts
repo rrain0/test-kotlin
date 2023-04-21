@@ -1,7 +1,15 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+
+
 plugins {
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm") version "1.8.20"
+
+    // https://github.com/Kotlin/kotlinx.serialization
+    // JSON serialization plugin
+    // same as Kotlin version
+    kotlin("plugin.serialization") version "1.8.20"
+
     application
 }
 
@@ -20,6 +28,14 @@ dependencies {
     testImplementation(kotlin("test"))
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+
+    // https://github.com/Kotlin/kotlinx.serialization
+    // JSON serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    // https://github.com/xn32/json5k
+    // Дополнение стандарта JSON5
+    // https://json5.org/ - стандарт JSON5
+    implementation("io.github.xn32:json5k:0.3.0")
 
     // https://mvnrepository.com/artifact/org.apache.poi/poi
     implementation("org.apache.poi:poi:5.2.2")
