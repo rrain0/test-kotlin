@@ -16,16 +16,20 @@ fun main(){
     BatchRenameFiles.renameBySeriesNumber(
       """M:\ВИДЕО\[anime]\Tate no Yuusha no Nariagari  Восхождение героя щита\Tate no Yuusha no Nariagari S02 13 eps JAM 1080p""",
       listOf(Regex("""\[JAM\] Tate no Yuusha no Nariagari S02E(?<n>\d{2})( END)? ?\[1080p\]\.mp4""")),
-      getOutputName = { """Tate no Yuusha no Nariagari s2e${it.epStr} ${if (it.ep==it.commonInfo!!.lastEp) "END " else ""}JAM 1080p.mp4""" },
+      getOutputName = { """Tate no Yuusha no Nariagari s2e${it.epStr}${if (it.ep==it.commonInfo!!.lastEp) " END" else ""} JAM 1080p""" },
       writeNames = false
     )
+    BatchRenameFiles.renameBySeriesNumber(
+      """L:\[anime]\Ублюдок!! Сокрушитель тьмы (ONA) [DC]  Bastard!! Ankoku no Hakaishin (ONA)""",
+      getOutputName = { """BASTARD!! Ankoku no Hakaishin s01e${it.epStr} DC 1080p""" },
+      writeNames = false
+    )
+    BatchRenameFiles.renameBySeriesNumber(
+      """M:\[anime]\[работает]\Sugar Apple Fairy Tale [DC]  Сказка о сахарном яблоке""",
+      getOutputName = { """Sugar Apple Fairy Tale s1e${it.epStr}${if (it.ep==it.commonInfo!!.lastEp) " END" else ""} (DC 1080p)""" },
+      writeNames = true
+    )
   }
-
-  BatchRenameFiles.renameBySeriesNumber(
-    """L:\[anime]\Ублюдок!! Сокрушитель тьмы (ONA) [DC]  Bastard!! Ankoku no Hakaishin (ONA)""",
-    getOutputName = { """BASTARD!! Ankoku no Hakaishin s01e${it.epStr} DC 1080p.mp4""" },
-    writeNames = true
-  )
 
 }
 
@@ -43,7 +47,10 @@ object BatchRenameFiles {
 
   // todo make it for season, part, episode S02E17 (S02P2E05)
   // todo get object { season, part, episode }
-  class CommonInfo(var firstEp: Int, var lastEp: Int)
+  class CommonInfo(
+    var firstEp: Int,
+    var lastEp: Int
+  )
   class InfoWithMatch(
     var path: String,
     var name: String,
@@ -57,23 +64,26 @@ object BatchRenameFiles {
     var ep: Int? = null,
     var commonInfo: CommonInfo? = null,
     var epStr: String? = null,
-    var newName: String? = null
+    var extension: String = "",
+    var newName: String? = null,
   )
   // overload to remove generics
   fun renameBySeriesNumber(
     containingFolder: String,
-    namePatterns: List<Regex> = namesPatternDefault,
+    namePatterns: List<Regex> = namePatternsDefault,
     getEpInt: (match: MatchResult)->Int = ::getEpIntDefault,
     getOutputName: (info: Info)->String,
-    writeNames: Boolean = false
-  ) = renameBySeriesNumber(containingFolder, namePatterns, getEpInt, ::mapToInfoDefault, getOutputName, writeNames)
+    autoExtensions: Boolean = true,
+    writeNames: Boolean = false,
+  ) = renameBySeriesNumber(containingFolder, namePatterns, getEpInt, ::mapToInfoDefault, getOutputName, autoExtensions, writeNames)
   fun <T : Info>renameBySeriesNumber(
     containingFolder: String,
-    namePatterns: List<Regex> = namesPatternDefault,
+    namePatterns: List<Regex> = namePatternsDefault,
     getEpInt: (match: MatchResult)->Int = ::getEpIntDefault,
     mapToInfo: (info: InfoWithMatch)->T,
     getOutputName: (info: T)->String,
-    writeNames: Boolean = false
+    autoExtensions: Boolean = true,
+    writeNames: Boolean = false,
   ){
     val seriesMap = mutableMapOf<Int,InfoWithMatch>()
     File(containingFolder).listFiles()!!.forEach { f ->
@@ -101,10 +111,12 @@ object BatchRenameFiles {
         it.commonInfo = commonInfo
         val info = mapToInfo(it)
         info.epStr = info.epStr ?: epToStrDefault(info.ep!!, commonInfo.lastEp)
+        info.extension = getExtension(info.name)
         info
       }
       .onEach {
         it.newName = getOutputName(it)
+        if (autoExtensions && it.extension.isNotEmpty()) it.newName += ".${it.extension}"
       }
 
     seriesList.forEach { println("${it.ep} - ${it.name} -> ${it.newName}") }
@@ -114,13 +126,47 @@ object BatchRenameFiles {
       Files.move(Path.of(it.path, it.name), Path.of(it.path, it.newName))
     }
   }
-  private val namesPatternDefault = listOf(
-    Regex(""".*?[sS](?<s>\d{1,2})[eE](?<n>\d{2,3}).*"""),
+  private val namePatternsDefault = listOf(
+    Regex(""".*?s(?<s>\d{1,2})e(?<n>\d{2,3}).*""", RegexOption.IGNORE_CASE),
     Regex(""".*?(?<n>\d{2,3}).*"""),
+    Regex(""".*?(?<!(s|(mp)|(season )))(?<n>\d{1,3}).*""", RegexOption.IGNORE_CASE),
   )
   private fun getEpIntDefault(match: MatchResult) = match.groups["n"]!!.value.toInt()
   private fun mapToInfoDefault(info: InfoWithMatch) = Info(info.path, info.name, info.ep, info.commonInfo)
   private fun epToStrDefault(currEp: Int, lastEp: Int) = currEp.toString().padStart(lastEp.toString().length, '0')
+  private fun getExtension(fileName: String) = Regex(""".*\.(?<ext>.+)$""")
+    .matchEntire(fileName)
+    ?.groups?.get("ext")
+    ?.value
+    ?.lowercase()
+    ?: ""
 
 }
 
+
+
+
+private object BatchRename2 {
+
+
+
+  fun rename(
+    folder: String, // folder with series
+    patterns: List<Regex> = listOf(), // patterns with groups: "s","p","ep","ext"
+    defaultEp: Ep = Ep()
+  ){
+
+  }
+
+
+
+  // season, part, episode e.g. S02E17, S02P2E05
+  data class Ep(
+    var s: Int? = null, // season
+    var p: Int? = null, // part
+    var ep: Int? = null, // episode
+  )
+
+
+
+}

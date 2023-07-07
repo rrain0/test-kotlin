@@ -1,6 +1,7 @@
 package test.coroutines
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.sync.Semaphore
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
@@ -10,11 +11,11 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.system.measureTimeMillis
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.nio.file.Path
+import kotlin.concurrent.withLock
 
 
 fun main(){
@@ -39,9 +40,17 @@ fun main(){
     //runBlocking { Flows.flowReduceAndFold() }
     runBlocking { Flows.flowZip() }
 
-    // launch coroutine directly by scope
+    // launch coroutine directly in global scope
     GlobalScope.launch {  }
 
+    // create some scope in launch inside
+    val workerScope = CoroutineScope(Dispatchers.IO)
+    workerScope.launch {  }
+
+    // create UI scope in launch inside
+    // MainScope() uses Dispatchers.Main for its coroutines and has a SupervisorJob.
+    val uiScope = MainScope()
+    uiScope.launch {  }
 }
 
 
@@ -58,6 +67,15 @@ fun main(){
     ● coroutineScope {}:
         waits for all nested coroutines complete then completes itself.
         unlike runBlocking - does not block the thread, only suspends it.
+        Например если coroutineScope { launch { ... } }, то coroutineScope не завершится,
+        пока job из этого launch не завершится.
+
+    ● withContext(context) {}:
+        Calls the specified suspending block with a given coroutine context,
+        suspends until it completes, and returns the result.
+            withContext(NonCancelable)
+            withContext(Dispatchers.IO)
+        ● Returns usual result of block execution.
 
     ● launch {}:
         launch is a coroutine builder.
@@ -85,8 +103,20 @@ fun main(){
     ● suspendCancellableCoroutine { cancellableContinuation -> ... }
 
     ● Channels for communication between coroutines
+        A Channel is conceptually very similar to BlockingQueue.
+        One key difference is that instead of a blocking 'put' operation it has a suspending 'send',
+        and instead of a blocking 'take' operation it has a suspending 'receive'.
 
     ● Flows
+        A regular Flow, such as defined by the flow { ... } function,
+         which is COLD and is started separately for each collector.
+
+    ● Shared Flows - broadcasting data to several receiver-coroutines
+        A hotFlow that shares emitted values among all its collectors in a broadcast fashion,
+        so that all collectors get all emitted values.
+        A shared flow is called HOT because its active instance exists independently of the presence of collectors.
+
+    ● Mutex (instead of ReentrantLock in sync world) and ● Semaphore
  */
 private fun coroutines(){
     fun main() = runBlocking { // this: CoroutineScope
@@ -492,21 +522,35 @@ suspend fun AsynchronousFileChannel.readAsync(buf: ByteBuffer, start: Long = 0L)
     }
 
 
+
+
+
+
+
+
+
 private object CoroutineDispatchers {
 
     // Диспетчер корутины - пул потоков для её выполнения
     suspend fun coroutineDispatchers() = coroutineScope{
         /*
-        ● Dispatchers.Default: применяется по умолчанию, если тип диспетчера не указан явным образом.
-        Этот тип использует общий пул разделяемых фоновых потоков и подходит для вычислений, которые не работают с операциями ввода-вывода (операциями с файлами, базами данных, сетью) и которые требуют интенсивного потребления ресурсов центрального процессора.
+        ● Dispatchers.Default: CPU-intensive tasks.
+        Применяется по умолчанию, если тип диспетчера не указан явным образом.
+        Этот тип использует общий пул разделяемых фоновых потоков и подходит для вычислений,
+        которые не работают с операциями ввода-вывода (операциями с файлами, базами данных, сетью)
+        и которые требуют интенсивного потребления ресурсов центрального процессора.
 
-        ● Dispatchers.IO: использует общий пул потоков, создаваемых по мере необходимости,
+        ● Dispatchers.IO: Read/Write operations.
+        Использует общий пул потоков, создаваемых по мере необходимости,
         и предназначен для выполнения операций ввода-вывода (например, операции с файлами или сетевыми запросами).
 
-        ● Dispatchers.Main: применяется в графических приложениях, например, в приложениях Android или JavaFX.
+        ● Dispatchers.Main: Android UI Thread.
+        Применяется в графических приложениях, например, в приложениях Android или JavaFX.
 
         ● Dispatchers.Unconfined: корутина не закреплена четко за определенным потоком или пулом потоков.
-        Она запускается в текущем потоке до первой приостановки. После возобновления работы корутина продолжает работу в одном из потоков, который сторого не фиксирован. Разработчики языка Kotlin в обычной ситуации не рекомендуют использовать данный тип.
+        Она запускается в текущем потоке до первой приостановки.
+        После возобновления работы корутина продолжает работу в одном из потоков, который сторого не фиксирован.
+        Разработчики языка Kotlin в обычной ситуации не рекомендуют использовать данный тип.
 
         ● newSingleThreadContext и ● newFixedThreadPoolContext: позволяют вручную задать поток/пул для выполнения корутины
          */
@@ -517,6 +561,18 @@ private object CoroutineDispatchers {
         val job = launch(pool) { }
         job.join()
         pool.close()
+
+
+        // Limited parallelism.
+        // Produces dispatchers that limits usage of underlying threads.
+        val backgroundDispatcher = newFixedThreadPoolContext(4, "App Background")
+        // At most 2 threads will be processing images as it is really slow and CPU-intensive
+        val imageProcessingDispatcher = backgroundDispatcher.limitedParallelism(2)
+        // At most 3 threads will be processing JSON to avoid image processing starvation
+        val jsonProcessingDispatcher = backgroundDispatcher.limitedParallelism(3)
+        // At most 1 thread will be doing IO
+        val fileWriterDispatcher = backgroundDispatcher.limitedParallelism(1)
+
     }
 }
 
@@ -529,7 +585,7 @@ private object Channels {
         // Создание канала для интов.
         // По умолчанию каналы без буфера, т.е. отправка-получение происходит
         // когда и отправитель и получатель готовы (вызваны методы send & receive).
-        val intChannel = Channel<Int>()
+        val intChannel = Channel<Int>(/*Channel.UNLIMITED*/)
 
         launch {
             for (n in 1..5){
@@ -557,6 +613,8 @@ private object Channels {
     }
     suspend fun channelsProducerConsumerTest() = coroutineScope {
         val names = getNames()
+        // consumeEach закрывает канал
+        // for (item in channel) не закрывает канал
         names.consumeEach { println(it) }
         println("End")
     }
@@ -592,7 +650,7 @@ private object Flows {
     /*
     Терминальные функции потоков
 
-    Терминальные функции потоков (● terminal operators) представляют suspend-функции, которые позволяют непосредственно получать объекты из потока или возвращают какое-то конечное значение:
+    Терминальные функции потоков (● Terminal operators) представляют suspend-функции, которые позволяют непосредственно получать объекты из потока или возвращают какое-то конечное значение:
 
         ● collect(): получает из потока переданные значения
 
@@ -618,13 +676,15 @@ private object Flows {
 
     Промежуточные функции
 
-    Промежуточные функции (● Intermediate operator) принимают поток и возвращают обработанный поток.
+    Промежуточные функции (● Intermediate operators) принимают поток и возвращают обработанный поток.
 
         ● combine(): объединяет два потока в один, после применения к их элементам функции преобразования
 
         ● drop(): исключает из начала потока определенное количество значений и возвращает полученный поток
 
-        ● take(): выбирает из потока определенное количество элементов
+        ● take(count): выбирает из потока определенное количество элементов
+
+        ● takeWhile( (element)->Boolean ): берёт из потока первые элементы, соответсвующие условию
 
         ● filter(): фильтрует поток, оставляя те элементы, которые соответствуют условию
 
@@ -644,9 +704,9 @@ private object Flows {
 
     suspend fun flowCountTakeDrop() = coroutineScope{
         /*
-        Creates a cold flow from the given suspendable block.
-        The flow being cold means that the block is called
-        every time a terminal operator is applied to the resulting flow.
+            Creates a cold flow from the given suspendable block.
+            The flow being COLD means that the block is called
+            every time a terminal operator is applied to the resulting flow.
          */
         val flow = flow {
             (1..10).forEach {
@@ -658,7 +718,7 @@ private object Flows {
         println("#0")
 
         delay(1000L)
-        // every call of count() runs flow block, so we need wait 5 seconds (1000, then 400*10)
+        // every call of count() runs flow  code-block, so we need wait 5 seconds (1000, then 400*10)
         println("#1, flow.count: ${flow.count()}")
 
         delay(1000L)
@@ -757,6 +817,103 @@ private object Flows {
         println("zip:")
         english.zip(russian) { a,b -> "$a: $b" }.collect(::println)
     }
+}
+
+
+
+
+
+
+private class MutexTest {
+
+    // Old synchronized way
+    val lock = ReentrantLock(true)
+    val sync = lock.newCondition()
+
+    fun lockedAction() {
+        lock.lock()
+        try {
+            // some action
+        } finally {
+            lock.unlock()
+        }
+    }
+    fun lockedAction2() = lock.withLock {
+        // some action
+    }
+
+
+    // New coroutine way
+    val mutex = Mutex()
+
+    suspend fun suspendLockedAction() {
+        mutex.lock()
+        try {
+            // some action
+        } finally {
+            mutex.unlock()
+        }
+    }
+    suspend fun suspendLockedAction2() = mutex.withLock {
+        // some action
+    }
+
+}
+
+
+
+private class SharedResourceCoroutinesSync {
+
+    private val ids: MutableSet<String> = mutableSetOf()
+
+    // passes only one coroutine at a time
+    private val mutex = Mutex()
+    // Shared flow gives all waiters its values
+    private val signal = MutableSharedFlow<Unit>(0,1,BufferOverflow.DROP_OLDEST)
+
+    // only one task with the same id can be executed at a time
+    suspend fun submitTaskById(
+        id: String,
+        task: suspend ()->Unit
+    ): Job = coroutineScope {
+
+        while (true){
+
+            // analogue of entering  java synchronized block
+            mutex.lock() // only one coroutine at once can pass, others suspends
+
+            if (id !in ids){ // check if this id is busy
+
+                ids += id // if not busy then make it busy
+
+                // analogue of leaving java synchronized block
+                mutex.unlock() // allow other coroutines to check
+
+                break // go out from loop to do task
+            }
+
+            // if this id is busy, we need to wait, and need to be notified
+
+            // subscribe on shared flow events, then unlock mutex
+            // subscribe BEFORE unlock, so other coroutines can't push notifyAll events before we can receive them
+            signal.onSubscription {
+                // analogue of leaving java synchronized block
+                mutex.unlock()
+            }
+                .take(1)
+                .collect() // analogue of java blocking wait()
+        }
+
+        // returns Job
+        launch {
+            task() // executes some task
+            mutex.withLock { // analogue of java synchronized block
+                ids -= id // release this id
+                signal.emit(Unit) // analogue of java notifyAll()
+            }
+        }
+    }
+
 }
 
 

@@ -5,6 +5,7 @@ import java.io.FileWriter
 
 
 
+fun main() = filesTest()
 
 
 
@@ -17,7 +18,7 @@ import java.io.FileWriter
 
     So, in this case, after use, the writer is no longer usable, because Kotlin has automatically closed it.
  */
-fun useTest(){
+fun useFunctionTest(){
 
   val writer = FileWriter("test.txt")
   writer.use { writer.write("something") }
@@ -61,5 +62,3 @@ fun filesTest(){
 
 
 
-
-fun main() = filesTest()

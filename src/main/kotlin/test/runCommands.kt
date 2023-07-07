@@ -1,6 +1,5 @@
 package test.`run-commands`
 
-import utils.cast
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -9,15 +8,15 @@ import java.util.concurrent.TimeUnit
 
 
 fun main(){
-    listOf("ffmpeg").runIt()
+    listOf("utilities").runIt()
 
     println();println();println();
 
-    listOf("ffmpeg").runCommand()
+    listOf("utilities").runCommand()
 
     println();println();println();
 
-    println(listOf("ffmpeg").runCommandWithResult())
+    println(listOf("utilities").runCommandWithResult())
 
     println();println();println();
 }

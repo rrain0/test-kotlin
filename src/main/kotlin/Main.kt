@@ -10,6 +10,7 @@ import kotlin.system.measureTimeMillis
 fun main(args: Array<String>) {
   // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
 
+  println("replace: ${uppercaseWords("name fAm otch")}")
 
   run {
     println("Hello Kotlin! ${listOf(1,2,3,0).sortedBy { it }}")
@@ -50,4 +51,8 @@ private fun timeMeasurement(){
   }
   println("measured time: $time")
 }
+
+private fun uppercaseWords(str: String) = str
+  .lowercase()
+  .replace(Regex("""(?<=(^|\s)).""")) { it.value[0].uppercase() }
 

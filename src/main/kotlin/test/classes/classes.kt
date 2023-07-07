@@ -182,6 +182,8 @@ private class DerivedA : BaseA {
 
     The overriding member will have the same visibility as the original.
 
+    ● 'final' keyword forbids inheritance
+
     Local variables, functions, and classes can't have visibility modifiers.
  */
 
