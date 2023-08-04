@@ -1,50 +1,29 @@
 package utilities
 
+import java.io.File
 import java.nio.file.Path
 
 
 
 fun main(){
-  powerOfThought()
+  //musicFromVideo()
   //fairyTailOva7Video()
 }
 
 
-private fun powerOfThought() {
 
-  val video = Input { path="""L:\БЭКАПЫ\backupp\даня\e\Мои видеозаписи\амвэй\Сила мысли - Что мы знаем об этом (Секрет 2).avi""" }
+private fun musicFromVideo() {
 
-  val movieTitle = "Сила мысли - Что мы знаем об этом (Секрет 2)"
-  val output = Output { path="""L:\БЭКАПЫ\backupp\даня\e\Мои видеозаписи\амвэй\Сила мысли - Что мы знаем об этом (Секрет 2).mkv""" }
+  val video = Input { path="""E:\ЗАГРУЗКИ\POLOMANE - Outskirt   PHONK 2023 - PHONK HOUSE 2023.mp4""" }
+  val output = Output { path="""E:\ЗАГРУЗКИ\POLOMANE - Outskirt   PHONK 2023 - PHONK HOUSE 2023.ogg""" }
 
   val ffmpeg = ffmpeg {
-    fileMetadata.apply {
-      title = movieTitle
-    }
-
-    // video
-    stream(video).v().n(1).apply {
-      codec.apply{
-        type = CodecType.H265
-        preset = Preset(PresetType.SLOW)
-        crf = 20
-      }
-      metadata.apply {
-        title = movieTitle
-        language = Language.RUSSIAN
-        isDefault = true
-      }
-    }
 
     // audio
     stream(video).a().n(1).apply {
       codec.apply {
         type = CodecType.OGG
         bitrate = "128k"
-      }
-      metadata.apply {
-        language = Language.RUSSIAN
-        isDefault = true
       }
     }
 

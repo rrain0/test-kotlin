@@ -1,4 +1,4 @@
-package test.classes.classes
+package test.`classes-and-objects`.classes
 
 import geometry.Point2
 import geometry.Rectangle

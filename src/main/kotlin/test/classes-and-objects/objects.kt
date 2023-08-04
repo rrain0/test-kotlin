@@ -1,4 +1,14 @@
-package test.objects
+package test.`classes-and-objects`.objects
+
+
+
+
+fun main(){
+    println("SingletonObject: $SingletonObject")
+    println("DataObject: $DataObject")
+}
+
+
 
 // object can't have constructor
 
@@ -7,6 +17,13 @@ package test.objects
 
 // Named object
 private object SingletonObject { // name is required in object declaration
+    val name = "Single"
+    var cnt = 8 as Int?
+    var tag: String? = "first"
+}
+
+// has generated methods automatically
+private data object DataObject {
     val name = "Single"
     var cnt = 8 as Int?
     var tag: String? = "first"
@@ -64,3 +81,4 @@ private class Test{
 // you can access companion object 2 ways:
 private var testCompanionObject = Test.Companion
 private var testCompanionObject2 = Test
+

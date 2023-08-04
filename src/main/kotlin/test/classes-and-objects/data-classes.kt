@@ -1,4 +1,4 @@
-package test.classes.`data-classes`
+package test.`classes-and-objects`.`data-classes`
 
 
 

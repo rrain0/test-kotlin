@@ -1,11 +1,6 @@
-import test.enums.enums
-import test.reflection.reflection
-import java.math.BigDecimal
-import java.math.MathContext
-import java.math.RoundingMode
-import java.util.*
-import kotlin.math.pow
 import kotlin.system.measureTimeMillis
+import kotlin.time.TimeSource
+
 
 fun main(args: Array<String>) {
   // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
@@ -50,6 +45,13 @@ private fun timeMeasurement(){
     repeat(10000) { println("AAA") }
   }
   println("measured time: $time")
+}
+private fun timeMeasurementMarks(){
+  val timeSource = TimeSource.Monotonic
+  val mark1 = timeSource.markNow()
+  repeat(10000) { println("AAA") }
+  val mark2 = timeSource.markNow()
+  println("measured time by marks: ${mark2 - mark1}") // measured time by marks: 168.822155ms
 }
 
 private fun uppercaseWords(str: String) = str

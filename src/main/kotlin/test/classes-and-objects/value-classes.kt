@@ -1,4 +1,4 @@
-package test.classes.`value-classes`
+package test.`classes-and-objects`.`value-classes`
 
 
 
@@ -12,7 +12,7 @@ fun main(){
 
 /*
   Классы-значения.
-  Обладают всемси свойствами классов-данных,
+  Обладают всеми свойствами классов-данных,
   но по скорости они такие же быстрые, как будто класса обёртки нету.
   На данный момент поддерживается только 1 значение.
   Не имеют дополнительных накладных расходов в виде самого класса обёртки над значениями.
@@ -20,6 +20,7 @@ fun main(){
  */
 @JvmInline
 private value class Weight(val value: Double)
+
 @JvmInline
 private value class Temperature(val value: Double){
   init {
@@ -29,6 +30,23 @@ private value class Temperature(val value: Double){
 private fun proceedTemperature(temperature: Temperature){
   println(temperature)
 }
+
+@JvmInline
+value class Person(private val fullName: String) {
+  // Allowed since Kotlin 1.4.30:
+  init {
+    check(fullName.isNotBlank()) {
+      "Full name shouldn't be empty"
+    }
+  }
+  // Allowed by default since Kotlin 1.9.0:
+  constructor(name: String, lastName: String) : this("$name $lastName") {
+    check(lastName.isNotBlank()) {
+      "Last name shouldn't be empty"
+    }
+  }
+}
+
 
 fun valueClassTest(){
   var weight = Weight(65.0)
