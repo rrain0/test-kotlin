@@ -1,6 +1,5 @@
 package utilities
 
-import java.io.File
 import java.nio.file.Path
 
 
@@ -8,6 +7,7 @@ import java.nio.file.Path
 fun main(){
   //musicFromVideo()
   //fairyTailOva7Video()
+  kurokoNoBasukeOvaTipOff()
 }
 
 
@@ -21,7 +21,7 @@ private fun musicFromVideo() {
 
     // audio
     stream(video).a().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "128k"
       }
@@ -52,12 +52,12 @@ private fun fairyTailMovie1Prologue() {
 
     // video 1080p
     stream(video1080pAndJapSound).v().n(1).apply {
-      codec.apply{
+      codec!!.apply{
         type = CodecType.H265
         preset = Preset(PresetType.SLOW)
         crf = 20
       }
-      metadata.apply {
+      metadata!!.apply {
         title = movieTitle
         language = Language.JAPANESE
         isDefault = true
@@ -66,11 +66,11 @@ private fun fairyTailMovie1Prologue() {
 
     // audio Anything Group
     stream(aniLibriaSound).a().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "128k"
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "AniLibria"
         language = Language.RUSSIAN
         isDefault = true
@@ -79,22 +79,22 @@ private fun fairyTailMovie1Prologue() {
 
     // audio Anything Group
     stream(anythingGroupSound).a().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "192k"
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "Anything Group (Dajana & Sad_Kit)"
         language = Language.RUSSIAN
       }
     }
     // audio jap
     stream(video1080pAndJapSound).a().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "192k"
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "Original"
         language = Language.JAPANESE
       }
@@ -102,10 +102,10 @@ private fun fairyTailMovie1Prologue() {
 
     // subtitles rus
     stream(sub).s().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.ASS
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "Fratelli & Timecraft & BW"
         language = Language.RUSSIAN
         isDefault = true
@@ -138,12 +138,12 @@ private fun fairyTailMovie1() {
 
     // video 1080p
     stream(video1080pAndJapSound).v().n(1).apply {
-      codec.apply{
+      codec!!.apply{
         type = CodecType.H265
         preset = Preset(PresetType.SLOW)
         crf = 20
       }
-      metadata.apply {
+      metadata!!.apply {
         title = movieTitle
         language = Language.JAPANESE
         isDefault = true
@@ -152,12 +152,12 @@ private fun fairyTailMovie1() {
 
     // audio AniDUB
     stream(anidubSound).a().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "192k"
         channels = 2
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "AniDUB"
         language = Language.RUSSIAN
         isDefault = true
@@ -166,12 +166,12 @@ private fun fairyTailMovie1() {
 
     // audio AniLibria
     stream(aniLibriaSound).a().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "192k"
         channels = 2
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "AniLibria"
         language = Language.RUSSIAN
       }
@@ -179,12 +179,12 @@ private fun fairyTailMovie1() {
 
     // audio Anything Group
     stream(anythingGroupSound).a().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "192k"
         channels = 2
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "Anything Group (Dajana & Sad_Kit)"
         language = Language.RUSSIAN
       }
@@ -192,12 +192,12 @@ private fun fairyTailMovie1() {
 
     // audio jap
     stream(video1080pAndJapSound).a().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "192k"
         channels = 2
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "Original"
         language = Language.JAPANESE
       }
@@ -205,10 +205,10 @@ private fun fairyTailMovie1() {
 
     // subtitles rus
     stream(sub).s().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.ASS
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "Fratelli & Timecraft & BW"
         language = Language.RUSSIAN
         isDefault = true
@@ -241,12 +241,12 @@ private fun fairyTailOva7(){
 
     // video 720p
     stream(anythingGroupAndJapAndSubs).v().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.H265
         preset = Preset(PresetType.SLOW)
         crf = 20
       }
-      metadata.apply {
+      metadata!!.apply {
         title = videoTitle
         language = Language.JAPANESE
         isDefault = true
@@ -255,11 +255,11 @@ private fun fairyTailOva7(){
 
     // audio AniDUB Ancord
     stream(video720pAndAncord).a().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "192k"
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "AniDUB Ancord"
         language = Language.RUSSIAN
         isDefault = true
@@ -268,11 +268,11 @@ private fun fairyTailOva7(){
 
     // audio Anything Group
     stream(anythingGroupAndJapAndSubs).a().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "192k"
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "Anything Group (Dajana & Sad_Kit)"
         language = Language.RUSSIAN
       }
@@ -280,11 +280,11 @@ private fun fairyTailOva7(){
 
     // audio jap
     stream(anythingGroupAndJapAndSubs).a().n(2).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.OGG
         bitrate = "192k"
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "Original"
         language = Language.JAPANESE
       }
@@ -292,10 +292,10 @@ private fun fairyTailOva7(){
 
     // subtitles rus inscriptions
     stream(anythingGroupAndJapAndSubs).s().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.ASS
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "Надписи перевод Хаттори"
         language = Language.RUSSIAN
         isDefault = true
@@ -304,10 +304,10 @@ private fun fairyTailOva7(){
 
     // subtitles rus full
     stream(anythingGroupAndJapAndSubs).s().n(2).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.ASS
       }
-      metadata.apply {
+      metadata!!.apply {
         title = "перевод Хаттори"
         language = Language.RUSSIAN
       }
@@ -339,13 +339,13 @@ private fun fairyTailOva7Video(){
 
     // video 720p
     stream(anythingGroupAndJapAndSubs).v().n(1).apply {
-      codec.apply {
+      codec!!.apply {
         type = CodecType.H265
         preset = Preset(PresetType.SLOW)
         resolution = Resolution.HD
         crf = 20
       }
-      metadata.apply {
+      metadata!!.apply {
         title = videoTitle
         language = Language.JAPANESE
         isDefault = true
@@ -355,6 +355,138 @@ private fun fairyTailOva7Video(){
     output(output)
   }
 
+  println(ffmpeg.buildCommand())
+}
+
+
+
+private fun kurokoNoBasukeOvaTipOff() {
+  // Movie
+  // Gekijouban Fairy Tail Houou no Miko
+  
+  val video1080pAndEngJapSoundEngSub = Input { path="""M:\Kuroko no Basket Specials\Kuroko's Basketball - S01E22.5 - OVA - Tip Off.mkv""" }
+  
+  val jamSound = Input { path="""M:\[torrents]\Kuroko no Basuke OVA (JAM 400p)\Kuroko no Basuke [OVA].avi""" }
+  val rusSub = Input { path="""M:\[torrents]\Kuroko no Basuke OVA (JAM 400p)\Sub\ASS\Kuroko no Basuke [OVA].ass""" }
+  
+  val anifilmSound = Input { path="""M:\[torrents]\[Anifilm] Kuroko no Basuke [OVA] [NeaR & Mosa]\[Anifilm] Kuroko no Basuke [OVA] [01 of 01] [1920x1080 x264] [Ru Jp] [NeaR & Mosa].mkv""" }
+  
+  val movieTitle = "Kuroko Basketball s01e22.5 OVA - Tip Off"
+  val output = Output { path="""K:\temp\$movieTitle (1080p, JAM, Anifilm (NeaR & Mosa), Jap, Eng, rus sub, eng sub).mkv""" }
+  
+  val ffmpeg = ffmpeg {
+    fileMetadata.apply {
+      title = movieTitle
+    }
+    
+    // video 1080p
+    stream(video1080pAndEngJapSoundEngSub).v().n(1).apply {
+      codec!!.apply{
+        type = CodecType.H265
+        preset = Preset(PresetType.SLOW)
+        //crf = 20
+        crf = 24
+      }
+      metadata!!.apply {
+        title = movieTitle
+        language = Language.JAPANESE
+        isDefault = true
+      }
+    }
+    
+    // audio JAM
+    stream(jamSound).a().n(1).apply {
+      codec!!.apply {
+        type = CodecType.OGG
+        bitrate = "192k"
+        channels = 2
+      }
+      metadata!!.apply {
+        title = "Animedia & JAM"
+        language = Language.RUSSIAN
+        isDefault = true
+      }
+    }
+    
+    // audio Anifilm (NeaR & Mosa)
+    stream(anifilmSound).a().n(1).apply {
+      codec!!.apply {
+        type = CodecType.OGG
+        bitrate = "192k"
+        channels = 2
+      }
+      metadata!!.apply {
+        title = "Anifilm (NeaR & Mosa)"
+        language = Language.RUSSIAN
+      }
+    }
+    
+    // audio jap
+    stream(video1080pAndEngJapSoundEngSub).a().n(2).apply {
+      codec!!.apply {
+        type = CodecType.OGG
+        bitrate = "192k"
+        channels = 2
+      }
+      metadata!!.apply {
+        title = "Original"
+        language = Language.JAPANESE
+      }
+    }
+    
+    // audio Eng
+    stream(video1080pAndEngJapSoundEngSub).a().n(1).apply {
+      codec!!.apply {
+        type = CodecType.OGG
+        bitrate = "192k"
+        channels = 2
+      }
+      metadata!!.apply {
+        title = "Eng"
+        language = Language.ENGLISH
+      }
+    }
+    
+    // subtitles rus
+    stream(rusSub).s().n(1).apply {
+      codec!!.apply {
+        type = CodecType.ASS
+      }
+      metadata!!.apply {
+        title = "rus (full)"
+        language = Language.RUSSIAN
+        isDefault = true
+      }
+    }
+    
+    // subtitles eng Saizen (full)
+    stream(video1080pAndEngJapSoundEngSub).s().n(2).apply {
+      codec!!.apply {
+        type = CodecType.ASS
+      }
+      metadata!!.apply {
+        title = "eng Saizen (full)"
+        language = Language.ENGLISH
+      }
+    }
+    
+    // subtitles eng Saizen (signs & songs)
+    stream(video1080pAndEngJapSoundEngSub).s().n(1).apply {
+      codec!!.apply {
+        type = CodecType.ASS
+      }
+      metadata!!.apply {
+        title = "eng Saizen (signs & songs)"
+        language = Language.ENGLISH
+      }
+    }
+    
+    stream(video1080pAndEngJapSoundEngSub).t()
+    stream(anifilmSound).t()
+    
+    output(output)
+  }
+  
   println(ffmpeg.buildCommand())
 }
 
@@ -413,38 +545,40 @@ enum class StreamType(val command: String){
 }
 class StreamConfig(var input: Input) {
   var type: StreamType? = null
-  var number: Int? = null
-  var codec: CodecConfig = CodecConfig()
-  var metadata: StreamMetadataConfig = StreamMetadataConfig()
+  var typeNumber: Int? = null
+  var codec: CodecConfig? = CodecConfig()
+  var metadata: StreamMetadataConfig? = StreamMetadataConfig()
 
-  fun v() = apply {
-    type = StreamType.VIDEO
-  }
-  fun a() = apply {
-    type = StreamType.AUDIO
-  }
-  fun s() = apply {
-    type = StreamType.SUBTITLE
-  }
-  fun at() = apply {
+  fun v() = apply { type = StreamType.VIDEO }
+  fun a() = apply { type = StreamType.AUDIO }
+  fun s() = apply { type = StreamType.SUBTITLE }
+  fun t() = apply {
     type = StreamType.ATTACHMENT
+    codec = null
+    metadata = null
   }
 
   // нумерация с 1
   fun n(number: Int? = null) = apply {
-    this.number = number
+    this.typeNumber = number
   }
 
 
 }
 data class Stream(
-  val index: Int,
   val input: Input,
   val inputIndex: Int,
   val type: StreamType? = null,
-  val number: Int? = null // нумерация с 0
+  val typeNumber: Int? = null, // нумерация с 0
+  val outputIndex: Int?,
+  val outputTypeIndex: Int?,
 ){
-  val streamSelectorCommand get() = (type?.let {":${it.command}"} ?: "") + (number?.let {":${it}"} ?: "")
+  val streamInputSelectorCommand get() = (type?.let {":${it.command}"} ?: "") + (typeNumber?.let {":${it}"} ?: "")
+  val streamOutputSelectorCommand: String get(){
+    if (type!=null && outputTypeIndex!=null) return ":${type.command}:$outputTypeIndex"
+    if (outputIndex!=null) return ":$outputIndex"
+    throw RuntimeException("Can't select stream $this")
+  }
 }
 
 
@@ -487,7 +621,7 @@ class CodecConfig {
   var channels: Int? = null // 1 / 2 / 6
 }
 data class Codec(
-  val streamIndex: Int,
+  val stream: Stream,
   val type: CodecType,
   val preset: Preset?,
   val resolution: Resolution?,
@@ -553,7 +687,7 @@ enum class Language(
   override fun toString() = command
 }
 data class StreamMetadata(
-  val streamIndex: Int,
+  val stream: Stream,
   val isDefault: Boolean? = null,
   val isForced: Boolean? = null,
   val title: String? = null,
@@ -606,20 +740,36 @@ data class ffmpeg(
       val streams = mutableListOf<Stream>()
       val codecs = mutableListOf<Codec>()
       val metadata = mutableListOf<StreamMetadata>()
-      config.streams.forEachIndexed { i,s ->
+      var streamNumber: Int? = 0
+      val typeStreamNumber: MutableMap<StreamType,Int?> = StreamType.entries.associateWithTo(mutableMapOf()){0}
+      config.streams.forEach { s ->
         val inputIndex = inputs.indexOf(s.input).let {
           if (it==-1){
             inputs.add(s.input)
             inputs.lastIndex
           } else it
         }
-        if (s.number==null) throw IllegalArgumentException("Several streams in one object is not supported yet")
-        val stream = Stream(i, s.input, inputIndex, s.type, s.number?.let { it-1 })
-          .also(streams::add)
-        s.codec.run { Codec(stream.index, type, preset, resolution, crf, bitrate, channels) }
-          .also(codecs::add)
-        s.metadata.run { StreamMetadata(stream.index, isDefault, isForced, title, language) }
-          .also(metadata::add)
+        if(s.type==null){
+          typeStreamNumber.replaceAll { t, u -> null }
+        }
+        if(s.typeNumber==null) {
+          streamNumber = null
+          s.type?.let { type -> typeStreamNumber[type] = null }
+        }
+        val stream = Stream(
+          s.input, inputIndex, s.type, s.typeNumber?.let { it-1 },
+          streamNumber, typeStreamNumber[s.type]
+        ).also(streams::add)
+        
+        streamNumber = streamNumber?.let { it+1 }
+        s.type?.let { type -> typeStreamNumber[type] = typeStreamNumber[type]?.let { it+1 } }
+        
+        s.codec?.run {
+          Codec(stream, type, preset, resolution, crf, bitrate, channels)
+        }?.also(codecs::add)
+        s.metadata?.run {
+          StreamMetadata(stream, isDefault, isForced, title, language)
+        }?.also(metadata::add)
       }
       val output = config.output ?: throw IllegalArgumentException("Output must be specified")
       return ffmpeg(
@@ -646,26 +796,27 @@ data class ffmpeg(
     }
 
     streams.forEach {
-      command.append("-map ${it.inputIndex}${it.streamSelectorCommand} ")
+      command.append("-map ${it.inputIndex}${it.streamInputSelectorCommand} ")
     }
 
     if (allCodecsCopy) command.append("-c copy ")
 
     codecs.forEach {
-      val index = it.streamIndex
-      command.append("-c:${index} ${it.type} ")
-      it.preset?.let { command.append("-preset:$index $it ") }
-      it.resolution?.let { command.append("-vf:$index scale=$it ") }
-      it.crf?.let { command.append("-crf:$index $it ") }
-      it.bitrate?.let { command.append("-b:$index $it ") }
-      it.channels?.let { command.append("-ac:$index $it ") }
+      val idx = it.stream.streamOutputSelectorCommand
+      command.append("-c$idx ${it.type} ")
+      it.preset?.let { command.append("-preset$idx $it ") }
+      it.resolution?.let { command.append("-vf$idx scale=$it ") }
+      it.crf?.let { command.append("-crf$idx $it ") }
+      it.bitrate?.let { command.append("-b$idx $it ") }
+      it.channels?.let { command.append("-ac$idx $it ") }
     }
 
     if (allStreamsNotDefaultNotForced) command.append("-disposition -default-forced ")
 
     metadata.forEach {
       if (it.isDefault!=null || it.isForced!=null) {
-        command.append("-disposition:${it.streamIndex} ")
+        val idx = it.stream.streamOutputSelectorCommand
+        command.append("-disposition$idx ")
         command.append(when(it.isDefault){ true -> "+default"; false -> "-default"; null -> "" })
         command.append(when(it.isForced){ true -> "+forced"; false -> "-forced"; null -> "" })
         command.append(" ")
@@ -673,9 +824,9 @@ data class ffmpeg(
     }
 
     metadata.forEach {
-      val index = it.streamIndex
-      it.title?.let { command.append("""-metadata:s:$index title="$it" """) }
-      it.language?.let { command.append("-metadata:s:$index language=$it ") }
+      val idx = it.stream.streamOutputSelectorCommand
+      it.title?.let { command.append("""-metadata:s$idx title="$it" """) }
+      it.language?.let { command.append("-metadata:s$idx language=$it ") }
     }
 
     command.append(""""${output.path}" """)
