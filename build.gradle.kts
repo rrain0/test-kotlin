@@ -3,12 +3,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
 plugins {
-  kotlin("jvm") version "1.9.10"
+  val kotlin_v = "1.9.20"
+  
+  
+  kotlin("jvm") version kotlin_v
 
   // https://github.com/Kotlin/kotlinx.serialization
   // JSON serialization plugin
   // same as Kotlin version
-  kotlin("plugin.serialization") version "1.9.10"
+  kotlin("plugin.serialization") version kotlin_v
 
   application
 }
@@ -33,7 +36,7 @@ dependencies {
   // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
   // https://github.com/Kotlin/kotlinx.serialization
   // JSON serialization
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1")
 
   // https://central.sonatype.com/artifact/io.github.xn32/json5k
   // https://github.com/xn32/json5k
@@ -42,15 +45,16 @@ dependencies {
   implementation("io.github.xn32:json5k:0.3.0")
 
   // https://mvnrepository.com/artifact/org.apache.poi/poi
-  implementation("org.apache.poi:poi:5.2.3")
-  implementation("org.apache.poi:poi-ooxml:5.2.3")
+  implementation("org.apache.poi:poi:5.2.4")
+  implementation("org.apache.poi:poi-ooxml:5.2.4")
 
+  // https://mvnrepository.com/artifact/org.jsoup/jsoup
   // html & xml parse & work
-  implementation("org.jsoup:jsoup:1.16.1")
+  implementation("org.jsoup:jsoup:1.16.2")
 
   // Apache Log4j
   // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
-  implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+  implementation("org.apache.logging.log4j:log4j-core:2.21.1")
   implementation(kotlin("reflect"))
 
 

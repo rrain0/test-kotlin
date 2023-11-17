@@ -1,3 +1,4 @@
+import kotlin.math.pow
 import kotlin.system.measureTimeMillis
 import kotlin.time.TimeSource
 
@@ -5,9 +6,19 @@ import kotlin.time.TimeSource
 fun main(args: Array<String>) {
   // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
   
+  
+  var p = 0.0
+  (1..60).forEach {
+    p += 0.955.pow(it-1) * if(it<60) 0.005 else 1.0
+  }
+  p /= 60.0
+  println("p: $p")
+  
+  
 
-  println("replace: ${uppercaseWords("name fAm otch")}")
-
+  //println("replace: ${uppercaseWords("name fAm otch")}")
+  
+  /*
   run {
     println("Hello Kotlin! ${listOf(1,2,3,0).sortedBy { it }}")
 
@@ -32,6 +43,7 @@ fun main(args: Array<String>) {
     runIntAction(3,6, { a,b -> a*b })
     runIntAction(6,9) { a,b -> a-b }
   }
+  */
 }
 
 
@@ -58,4 +70,35 @@ private fun timeMeasurementMarks(){
 private fun uppercaseWords(str: String) = str
   .lowercase()
   .replace(Regex("""(?<=(^|\s)).""")) { it.value[0].uppercase() }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+enum class UnitType(val cssUnitString: String){
+  PX("px"), VH("vh"), /*....*/;
+}
+open class Unit(val type: UnitType, val value: Double){
+  fun toCssString() = "$value${type.cssUnitString}"
+}
+class Px(value: Double): Unit(UnitType.PX, value)
+class Vh(value: Double): Unit(UnitType.VH, value)
+
+val Int.px: Px
+  get() = Px(this.toDouble())
+
+val Int.vh: Vh
+  get() = Vh(this.toDouble())
+
+val TenPx: Px = 10.px
+val TenViewHeight: Vh = 10.vh
 

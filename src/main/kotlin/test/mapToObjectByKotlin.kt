@@ -7,6 +7,20 @@ fun main(){
 }
 
 
+
+
+enum class SomeDataType { NORMAL, OTHER }
+data class SomeData(val type: SomeDataType, val names: List<String>)
+fun getOtherNamesListDistinct(someDatas: List<SomeData>): List<String> {
+  return someDatas
+    .filter { it.type==SomeDataType.NORMAL }
+    .fold(mutableSetOf<String>()) { acc, data -> acc.addAll(data.names); acc }
+    .toList()
+}
+
+
+
+
 /*
     The object is backed by map
     Changes in object reflects on map and vise versa

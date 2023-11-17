@@ -1,5 +1,6 @@
 package utils
 
+import java.util.*
 
 
 fun main(){
@@ -14,6 +15,12 @@ inline fun <reified T> Any?.cast(): T = this as T
 infix fun String.dot(other: String) = this+"."+other
 
 fun println(vararg args: Any?) = kotlin.io.println(args.joinToString(" "))
+
+fun String.toBase64() = this.toByteArray().let { Base64.getEncoder().encodeToString(it) }
+
+
+
+
 
 /* NOT NECESSARY TO MAKE SEPARATE FUNCTION FOR THIS
 inline fun <T : Any> Any?.tryor(defaultValue: T, block: ()->T): T {

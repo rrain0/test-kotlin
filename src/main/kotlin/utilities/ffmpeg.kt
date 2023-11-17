@@ -5,17 +5,17 @@ import java.nio.file.Path
 
 
 fun main(){
-  //musicFromVideo()
+  extractAudioToOgg()
   //fairyTailOva7Video()
-  kurokoNoBasukeOvaTipOff()
+  //kurokoNoBasukeOvaTipOff()
 }
 
 
 
-private fun musicFromVideo() {
+private fun extractAudioToOgg() {
 
-  val video = Input { path="""E:\ЗАГРУЗКИ\POLOMANE - Outskirt   PHONK 2023 - PHONK HOUSE 2023.mp4""" }
-  val output = Output { path="""E:\ЗАГРУЗКИ\POLOMANE - Outskirt   PHONK 2023 - PHONK HOUSE 2023.ogg""" }
+  val video = Input { path="""E:\ЗАГРУЗКИ\Kuroko no Basket Ending 2 (Full) Catal Rhythm - Oldcodex.mp4""" }
+  val output = Output { path="""E:\ЗАГРУЗКИ\Kuroko no Basket Ending 2 (Full) Catal Rhythm - Oldcodex.ogg""" }
 
   val ffmpeg = ffmpeg {
 

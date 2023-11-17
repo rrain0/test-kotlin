@@ -1,4 +1,4 @@
-package test.inlining
+package test.functionsInlining
 
 
 
