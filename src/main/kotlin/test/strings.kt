@@ -63,6 +63,7 @@ private fun stringsTest(){
     val ssm = """multiline: $s1 ${ss2.substring(0)}"""
     // escaping of '$'
     val ssmEscaped = """multilene: ${'$'}sometning"""
+    val escaped = listOf("\$a","""${'$'}""")
   }
 
   run {

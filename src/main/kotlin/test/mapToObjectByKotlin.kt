@@ -28,6 +28,12 @@ fun getOtherNamesListDistinct(someDatas: List<SomeData>): List<String> {
 fun mapToObjectByKotlin(){
   val pMap = mutableMapOf<String,Any?>("name" to "Person", "age" to 20)
   val p = Person2(pMap)
+  
+  // You can pass EMPTY map
+  // You can set not existing properties
+  // But you cannot get not existing property - NoSuchElementException
+  val p2 = Person(mutableMapOf())
+  p2.name = "lkj"
 
   val pp = PersonNullable(
     mutableMapOf<String, Any?>().withDefault { null } // no error when key not found

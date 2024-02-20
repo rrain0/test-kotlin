@@ -175,7 +175,7 @@ private class DerivedA : BaseA {
 
 /*
     Visibility:
-    ● private - the member is visible inside this class/file only (including all its members).
+    ● private - the member is visible inside this class/file (not package) only (including all its members).
     ● protected - private visibility + visible in subclasses.
     ● internal - module visibility - any client inside this module who sees the declaring class sees its internal members.
     ● public (by default) - any client who sees the declaring class sees its public members.

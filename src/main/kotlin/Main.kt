@@ -1,11 +1,16 @@
+import kotlin.jvm.functions.FunctionN
 import kotlin.math.pow
 import kotlin.system.measureTimeMillis
 import kotlin.time.TimeSource
 
 
+
 fun main(args: Array<String>) {
   // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
   
+  val str = Regex("""a+""")
+  val regex = Regex("""b+$str""")
+  println(regex)
   
   var p = 0.0
   (1..60).forEach {
@@ -14,6 +19,10 @@ fun main(args: Array<String>) {
   p /= 60.0
   println("p: $p")
   
+  
+  
+  val funOrNull = {} as FunctionN<*>
+  funOrNull()
   
 
   //println("replace: ${uppercaseWords("name fAm otch")}")

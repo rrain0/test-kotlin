@@ -1,4 +1,4 @@
-package test2
+package test.multithreading
 
 import java.util.*
 import java.util.concurrent.Executors
@@ -13,7 +13,7 @@ private val list2: MutableList<Int> = Collections.synchronizedList(ArrayList())
 private val counter: AtomicInteger = AtomicInteger()
 private val resultList: MutableList<Int?> = Collections.synchronizedList(ArrayList())
 
-fun main(){
+fun main0(){
 
     repeat(size) {
         list1.add(Random().nextInt())

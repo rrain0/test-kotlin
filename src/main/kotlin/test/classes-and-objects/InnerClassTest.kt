@@ -1,3 +1,5 @@
+package test.`classes-and-objects`
+
 import kotlin.math.max
 
 

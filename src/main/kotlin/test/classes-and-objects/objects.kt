@@ -50,23 +50,23 @@ private interface TypeForObject {
 fun objects(){
     SingletonObject.cnt = 9
     second.cnt++
-
-
+    
+    
     fun getSingleton(): SingletonObject = SingletonObject
-
+    
     fun getSecond(): Any = second
-
+    
     fun getTypedObject(): TypeForObject = object : TypeForObject {
         override val x = 10
         override val s: String get() = "$x strings"
     }
-
+    
 }
 
 
 
 private class Test{
-
+    
     // companion objects can extend or implement something
     companion object : Comparable<Int>{
         // use @JvmStatic to make this member of companion object compiled as static
@@ -74,9 +74,9 @@ private class Test{
         val i = 10
         override fun compareTo(other: Int) = i.compareTo(other)
     }
-
-
-
+    
+    
+    
 }
 // you can access companion object 2 ways:
 private var testCompanionObject = Test.Companion
