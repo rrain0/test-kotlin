@@ -3,30 +3,45 @@ package parser
 
 
 
-class LexemeChar(
-  var char: Char?,
-  var next: MutableList<LexemeChar> = mutableListOf(),
-) {
-  override fun toString(): String {
-    return "LexemeChar(char='${this.char}')"
-  }
+enum class LexemeType {
+  ERROR,
+  NUMBER,
+  //KEYWORD,
+  OPERATOR,
+  FUNCTION,
+  PARENTHESES,
 }
 
 
 
-val stringLexemes = listOf(
+data class LexemeChar(
+  val type: LexemeType?,
+  val char: Char?,
+) {
+  var next: MutableList<LexemeChar> = mutableListOf()
+}
+
+
+
+val functionStringLexemes = listOf(
   "sin", "tan", "arctan", "tg", "ctg", "arcctg",
 )
 
 val root = run {
-  val root = LexemeChar(null)
+  val root = LexemeChar(null, null)
   fun buildLexemesTree(){
     // number
     val digits = listOf(
-      LexemeChar('0'),
-      LexemeChar('1'), LexemeChar('2'), LexemeChar('3'),
-      LexemeChar('4'), LexemeChar('5'), LexemeChar('6'),
-      LexemeChar('7'), LexemeChar('8'), LexemeChar('9'),
+      LexemeChar(LexemeType.NUMBER, '0'),
+      LexemeChar(LexemeType.NUMBER, '1'),
+      LexemeChar(LexemeType.NUMBER, '2'),
+      LexemeChar(LexemeType.NUMBER, '3'),
+      LexemeChar(LexemeType.NUMBER, '4'),
+      LexemeChar(LexemeType.NUMBER, '5'),
+      LexemeChar(LexemeType.NUMBER, '6'),
+      LexemeChar(LexemeType.NUMBER, '7'),
+      LexemeChar(LexemeType.NUMBER, '8'),
+      LexemeChar(LexemeType.NUMBER, '9'),
     )
     digits.forEach { d ->
       d.next += digits
@@ -34,15 +49,21 @@ val root = run {
     }
     root.next += digits
     
-    val numberDot = LexemeChar('.')
+    val numberDot = LexemeChar(LexemeType.NUMBER, '.')
     numberDot.next += digits
     root.next += numberDot
     
     val digitsWithDot = listOf(
-      LexemeChar('0'),
-      LexemeChar('1'), LexemeChar('2'), LexemeChar('3'),
-      LexemeChar('4'), LexemeChar('5'), LexemeChar('6'),
-      LexemeChar('7'), LexemeChar('8'), LexemeChar('9'),
+      LexemeChar(LexemeType.NUMBER, '0'),
+      LexemeChar(LexemeType.NUMBER, '1'),
+      LexemeChar(LexemeType.NUMBER, '2'),
+      LexemeChar(LexemeType.NUMBER, '3'),
+      LexemeChar(LexemeType.NUMBER, '4'),
+      LexemeChar(LexemeType.NUMBER, '5'),
+      LexemeChar(LexemeType.NUMBER, '6'),
+      LexemeChar(LexemeType.NUMBER, '7'),
+      LexemeChar(LexemeType.NUMBER, '8'),
+      LexemeChar(LexemeType.NUMBER, '9'),
     )
     digits.forEach { d ->
       d.next += digitsWithDot
@@ -54,34 +75,36 @@ val root = run {
     
     // basic operators
     val basicOperators = listOf(
-      LexemeChar('+'), LexemeChar('-'), LexemeChar('*'), LexemeChar('/')
+      LexemeChar(LexemeType.OPERATOR, '+'),
+      LexemeChar(LexemeType.OPERATOR, '-'),
+      LexemeChar(LexemeType.OPERATOR, '*'),
+      LexemeChar(LexemeType.OPERATOR, '/'),
     )
     basicOperators.forEach { it.next += root }
     root.next += basicOperators
     
     
     // parentheses
-    val parentheses = listOf(LexemeChar('('), LexemeChar(')'))
+    val parentheses = listOf(LexemeChar(
+      LexemeType.PARENTHESES, '('),
+      LexemeChar(LexemeType.PARENTHESES, ')'),
+    )
     parentheses.forEach { it.next += root }
     root.next += parentheses
     
     
-    // todo
-    //  ['a']
-    //  ['r']
-    //  ['c']
-    //  ['c']
-    //  ['t', 'o']
-    //  ['g', 't']
-    //  надо в текущей итерации проверить, есть ли такая буква уже
-    //  (но ветви деоева не могут сойтись, если они хоть раз разошлись, иначе будет путаница в дальнейшем с тем куда идти)
-    // test
-    val test = mutableListOf(root)
-    test += stringLexemes[0].map { LexemeChar(it) }
-    for (i in 1..test.lastIndex){
-      test[i-1].next += test[i]
+    // functions
+    functionStringLexemes.forEach { s ->
+      if (s.isEmpty()) throw RuntimeException("Token length cannot be 0")
+      var curr = root
+      s.forEach { c ->
+        val next = curr.next.find { it.char==c }
+          ?: LexemeChar(LexemeType.FUNCTION, c).also { curr.next += it }
+        curr = next
+      }
+      curr.next += root
     }
-    test.last().next += root
+    
     
   }
   buildLexemesTree()
@@ -95,23 +118,18 @@ val root = run {
 
 
 
-
-data class Lexema(
-  val type: String,
+data class Lexeme(
+  val type: LexemeType,
   val data: String,
   val s: Int,
   val e: Int,
+  val nextExpectedChars: List<LexemeChar> = listOf()
 )
-/*
-data class LexemesParsingException(
-  val index: Int
-): RuntimeException("$index")
-*/
 
 
 
-fun String.lexify(): List<Lexema> {
-  val lexemes: MutableList<Lexema> = mutableListOf()
+fun String.lexify(): List<Lexeme> {
+  val lexemes: MutableList<Lexeme> = mutableListOf()
   val lexemeChars: MutableList<LexemeChar> = mutableListOf(root)
   var s = 0
   
@@ -124,14 +142,16 @@ fun String.lexify(): List<Lexema> {
     if (lexemaChar!=null) lexemeChars += lexemaChar
     
     if (lexemaChar==null) {
-      val canEnd = lexemeChars.last().next.contains(root)
-      lexemes += Lexema(
-        type = if (canEnd) "" else "error",
+      val last = lexemeChars.last()
+      val canEnd = last.next.contains(root)
+      lexemes += Lexeme(
+        type = if (canEnd) last.type!! else LexemeType.ERROR,
         data = lexemeChars
           .slice(1..lexemeChars.lastIndex)
           .joinToString(separator = "") { it.char!!.toString() },
         s = s,
-        e = i
+        e = i,
+        nextExpectedChars = last.next
       )
       lexemeChars.clear()
       lexemeChars += root
