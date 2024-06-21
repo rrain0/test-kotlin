@@ -1,4 +1,4 @@
-package test
+package test.`files-and-resources`
 
 import java.io.File
 import java.io.FileWriter

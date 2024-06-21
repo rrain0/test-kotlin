@@ -2,6 +2,9 @@ package test.`run-commands`
 
 import java.io.File
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
 
 
 
@@ -9,15 +12,15 @@ import java.util.concurrent.TimeUnit
 
 fun main(){
     listOf("utilities").runIt()
-
+    
     println();println();println();
-
+    
     listOf("utilities").runCommand()
-
+    
     println();println();println();
-
+    
     println(listOf("utilities").runCommandWithResult())
-
+    
     println();println();println();
 }
 
@@ -34,20 +37,21 @@ private fun List<String>.runIt() = ProcessBuilder(this).inheritIO().start().wait
 // redirect process output into console
 private fun String.runCommand(
     workingDir: File = File("."),
-    timeoutAmount: Long? = null,
-    timeoutUnit: TimeUnit = TimeUnit.SECONDS
-) = this.split(Regex("""\s""")).runCommand(workingDir,timeoutAmount,timeoutUnit)
+    timeout: Duration? = null,
+) = this.split(Regex("""\s""")).runCommand(workingDir,timeout)
 
 private fun List<String>.runCommand(
     workingDir: File = File("."),
-    timeoutAmount: Long? = null,
-    timeoutUnit: TimeUnit = TimeUnit.SECONDS
+    timeout: Duration? = null,
 ) {
     ProcessBuilder(this)
         .directory(workingDir)
         .inheritIO()
         .start()
-        .also { if (timeoutAmount==null) it.waitFor() else it.waitFor(timeoutAmount, timeoutUnit) }
+      .also {
+        if (timeout==null) it.waitFor()
+        else it.waitFor(timeout.toLong(DurationUnit.MILLISECONDS), TimeUnit.MILLISECONDS)
+      }
 }
 
 
@@ -59,25 +63,26 @@ private fun List<String>.runCommand(
 
 
 // redirect process output to string
-private fun String.runCommandWithResult(
+fun String.runCommandWithResult(
     workingDir: File = File("."),
-    timeoutAmount: Long? = null,
-    timeoutUnit: TimeUnit = TimeUnit.SECONDS
-) = this.split(Regex("""\s""")).runCommandWithResult(workingDir,timeoutAmount,timeoutUnit)
+    timeout: Duration? = null,
+): List<String>? = this.split(Regex("""\s""")).runCommandWithResult(workingDir,timeout)
 
-private fun List<String>.runCommandWithResult(
+fun List<String>.runCommandWithResult(
     workingDir: File = File("."),
-    timeoutAmount: Long? = null,
-    timeoutUnit: TimeUnit = TimeUnit.SECONDS
+    timeout: Duration? = null,
 ): List<String>? = runCatching {
     ProcessBuilder(this)
         .directory(workingDir)
         .redirectOutput(ProcessBuilder.Redirect.PIPE)
         .redirectError(ProcessBuilder.Redirect.PIPE)
         .start()
-        .also { if (timeoutAmount==null) it.waitFor() else it.waitFor(timeoutAmount, timeoutUnit) }
+        .also {
+            if (timeout==null) it.waitFor()
+            else it.waitFor(timeout.toLong(DurationUnit.MILLISECONDS), TimeUnit.MILLISECONDS)
+        }
         .let { listOf(
             it.inputStream.bufferedReader().readText(), // stdout
-            it.errorStream.bufferedReader().readText() //stderr
+            it.errorStream.bufferedReader().readText(), // stderr
         ) }
 }.onFailure { it.printStackTrace() }.getOrNull()

@@ -3,6 +3,7 @@ package test.`classes-and-objects`.enums
 import java.util.function.BinaryOperator
 import java.util.function.IntBinaryOperator
 import kotlin.enums.EnumEntries
+import kotlin.enums.enumEntries
 
 
 fun main(){
@@ -16,11 +17,10 @@ fun enums(){
   println("Direction.DOWN.name: ${Direction.DOWN.name}") // DOWN
   println("Direction.DOWN.ordinal: ${Direction.DOWN.ordinal}") // 1
 
-  val directionValues: Array<Direction> = Direction.values()
+  val directionEnumEntries: EnumEntries<Direction> = enumEntries<Direction>()
   val directionEntries: EnumEntries<Direction> = Direction.entries
   val directionEntriesList: List<Direction> = Direction.entries
 
-  println("Direction.values(): ${Direction.values().asList()}") // [UP, DOWN, LEFT, RIGHT]
   println("Direction.entries: ${Direction.entries}") // [UP, DOWN, LEFT, RIGHT]
 
   println("enumValues<T>() as enumValues<Direction>(): ${enumValues<Direction>().asList()}") // [UP, DOWN, LEFT, RIGHT]

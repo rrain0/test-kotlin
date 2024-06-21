@@ -1,6 +1,6 @@
 package test.regexp.`batch-file-rename`
 
-import utils.dot
+import util.dot
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path

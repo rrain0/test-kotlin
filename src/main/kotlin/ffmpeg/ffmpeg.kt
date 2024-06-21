@@ -1,4 +1,4 @@
-package utils.ffmpeg
+package ffmpeg
 
 import java.nio.file.Path
 

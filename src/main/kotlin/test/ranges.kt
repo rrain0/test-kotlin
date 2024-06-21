@@ -4,6 +4,9 @@ package test.ranges
 import geometry.Point2
 import kotlin.math.sqrt
 
+
+
+
 fun main(){
     //ranges()
     customRange()
@@ -43,6 +46,7 @@ private fun ranges() {
   for (i in 1 until 10) { // i in 1 until 10, excluding 10
       print(i)
   }
+  // kotlin 1.9+ syntax
   for (i in 1..<10) { // i in 1 until 10, excluding 10
       print(i)
   }

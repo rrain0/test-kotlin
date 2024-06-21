@@ -1,14 +1,9 @@
-package utils.ffmpeg
-
-
-
-
-
-
+package ffmpeg
 
 
 fun main(){
   extractAudioToOgg320k()
+  //extractAudio()
   
   //extractMeme()
   
@@ -41,8 +36,8 @@ private fun videoUpscale() {
 
 
 private fun extractAudioToOgg320k() {
-  val video = Input { path="""E:\[temp]\In My Memory\【GhostFinal】In My Memory「Punishing Gray Raven OST - 源解信标」 【パニシンググレイレイヴン】Official.mp4""" }
-  val output = Output { path="""E:\[temp]\In My Memory\【GhostFinal】In My Memory「Punishing Gray Raven OST - 源解信标」 【パニシンググレイレイヴン】Official.ogg""" }
+  val video = Input { path="""E:\ЗАГРУЗКИ\【GhostFinal】One Hit Kill 「Girls Frontline 2 OST」 【ドールズフロントライン 2】Official.mkv""" }
+  val output = Output { path="""E:\ЗАГРУЗКИ\【GhostFinal】One Hit Kill 「Girls Frontline 2 OST」 【ドールズフロントライン 2】Official.ogg""" }
   val ffmpeg = ffmpeg {
     
     // audio
@@ -50,6 +45,23 @@ private fun extractAudioToOgg320k() {
       codec!!.apply {
         type = CodecType.OGG
         bitrate = "320k"
+      }
+    }
+    
+    output(output)
+  }
+  
+  println(ffmpeg.buildCommand())
+}
+private fun extractAudio() {
+  val video = Input { path="""E:\ЗАГРУЗКИ\Scenecore x Eurodance Type Beat 'Blue Steel'.mkv""" }
+  val output = Output { path="""E:\ЗАГРУЗКИ\Scenecore x Eurodance Type Beat 'Blue Steel'.ogg""" }
+  val ffmpeg = ffmpeg {
+    
+    // audio
+    stream(video).a().n(1).apply {
+      codec!!.apply {
+        type = CodecType.COPY
       }
     }
     

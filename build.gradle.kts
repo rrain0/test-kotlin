@@ -3,15 +3,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
 plugins {
-  val kotlin_v = "1.9.21"
+  val kotlinV = "2.0.0"
   
   
-  kotlin("jvm") version kotlin_v
+  kotlin("jvm") version kotlinV
 
   // https://github.com/Kotlin/kotlinx.serialization
   // JSON serialization plugin
   // same as Kotlin version
-  kotlin("plugin.serialization") version kotlin_v
+  kotlin("plugin.serialization") version kotlinV
 
   application
 }
@@ -19,7 +19,7 @@ plugins {
 
 
 group = "com.rrain"
-version = "1.0-SNAPSHOT"
+version = "0.0.1"
 
 repositories {
   mavenCentral()
@@ -30,8 +30,8 @@ repositories {
 dependencies {
   testImplementation(kotlin("test"))
 
-  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core/1.7.3
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 
   // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
   // https://github.com/Kotlin/kotlinx.serialization

@@ -1,4 +1,4 @@
-package utils
+package util
 
 import java.util.*
 
@@ -18,7 +18,35 @@ fun println(vararg args: Any?) = kotlin.io.println(args.joinToString(" "))
 
 fun String.toBase64() = this.toByteArray().let { Base64.getEncoder().encodeToString(it) }
 
+fun bool(value: Any?): Boolean {
+  if (value==null) return false
+  if (value=="") return false
+  if (value==false) return false
+  if (value==0) return false
+  if (value==0L) return false
+  if (value==0.0) return false
+  if (value==-0.0) return false
+  if (value==0f) return false
+  if (value==-0f) return false
+  return true
+}
 
+
+
+
+fun f(){
+  val list = listOf("a","b","c").map { it + "1" }
+  
+}
+
+
+fun ff(param1: String = "dsflj", block: ()->Unit){}
+
+fun fff(){
+  ff("dfj", {})
+  ff("dsfj") {}
+  ff {}
+}
 
 
 
