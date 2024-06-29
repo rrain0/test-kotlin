@@ -2,8 +2,8 @@ package ffmpeg
 
 
 fun main(){
-  extractAudioToOgg320k()
-  //extractAudio()
+  //extractAudioToOgg320k()
+  extractAudio()
   
   //extractMeme()
   
@@ -53,9 +53,10 @@ private fun extractAudioToOgg320k() {
   
   println(ffmpeg.buildCommand())
 }
+
 private fun extractAudio() {
-  val video = Input { path="""E:\ЗАГРУЗКИ\Scenecore x Eurodance Type Beat 'Blue Steel'.mkv""" }
-  val output = Output { path="""E:\ЗАГРУЗКИ\Scenecore x Eurodance Type Beat 'Blue Steel'.ogg""" }
+  val video = Input { path="""E:\ЗАГРУЗКИ\NOXEK - TAKE FROM ME.mkv""" }
+  val output = Output { path="""E:\ЗАГРУЗКИ\NOXEK - TAKE FROM ME.ogg""" }
   val ffmpeg = ffmpeg {
     
     // audio
