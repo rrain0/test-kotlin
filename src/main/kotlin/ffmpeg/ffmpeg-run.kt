@@ -55,8 +55,8 @@ private fun extractAudioToOgg320k() {
 }
 
 private fun extractAudio() {
-  val video = Input { path="""E:\ЗАГРУЗКИ\NOXEK - TAKE FROM ME.mkv""" }
-  val output = Output { path="""E:\ЗАГРУЗКИ\NOXEK - TAKE FROM ME.ogg""" }
+  val video = Input { path="""E:\ЗАГРУЗКИ\Crystal Metropolis - Night Prowler.mp4""" }
+  val output = Output { path="""E:\ЗАГРУЗКИ\Crystal Metropolis - Night Prowler.aac""" }
   val ffmpeg = ffmpeg {
     
     // audio
