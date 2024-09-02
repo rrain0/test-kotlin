@@ -25,13 +25,13 @@ fun bool(value: Any?): Boolean {
   if (value == 0) return false
   if (value == 0L) return false
   if (value == 0.0) return false
-  if (value == -0.0) return false
   if (value == 0f) return false
-  if (value == -0f) return false
   return true
 }
 fun Any?.toBool() = bool(this)
+val Any?.bool get() = bool(this)
 
+// better use (value ?: defaultValue)
 fun <T : Any?>T.mapNull(block: () -> T & Any): T & Any {
   if (this == null) return block()
   return this

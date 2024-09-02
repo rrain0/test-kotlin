@@ -85,8 +85,8 @@ val root = run {
     
     
     // parentheses
-    val parentheses = listOf(LexemeChar(
-      LexemeType.PARENTHESES, '('),
+    val parentheses = listOf(
+      LexemeChar(LexemeType.PARENTHESES, '('),
       LexemeChar(LexemeType.PARENTHESES, ')'),
     )
     parentheses.forEach { it.next += root }
@@ -134,9 +134,9 @@ fun String.lexify(): List<Lexeme> {
   var s = 0
   
   var i = 0
-  while (i<=this.length){
+  while (i <= this.length){
     val lexemaChar =
-      if (i<this.length) lexemeChars.last().next.find { it.char==this[i] }
+      if (i < this.length) lexemeChars.last().next.find { it.char==this[i] }
       else null
     
     if (lexemaChar!=null) lexemeChars += lexemaChar

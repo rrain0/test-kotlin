@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
 plugins {
-  val kotlinV = "2.0.0"
+  val kotlinV = "2.0.20"
   
   
   kotlin("jvm") version kotlinV
