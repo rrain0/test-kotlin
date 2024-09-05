@@ -1,4 +1,4 @@
-package parser3.`1-lexer`
+package parser.`1-lexer`
 
 
 /*
@@ -49,9 +49,11 @@ data class Lexeme(
   val e: Int,
 )
 
+
 fun LexemeNode.nextFor(c: Char?): LexemeNode? {
   return next.find { it.c?.c == c }
 }
+
 
 data class LexemeChain(
   var lastEndI: Int,
@@ -60,45 +62,59 @@ data class LexemeChain(
 ) {
   val isEmpty get() = lastEndI == 0
   fun getToken(): String {
-    return (0..lastEndI).joinToString(separator = "") { chain[it].c.toString() }
+    return (1..lastEndI).joinToString(separator = "") { chain[it].c!!.c.toString() }
   }
 }
 
+
 fun String.lexify(root: LexemeNode): List<Lexeme> {
+  //println("string:", this, "len:", length)
+  
   val lexemes: MutableList<Lexeme> = mutableListOf()
   var s = 0
   val chains: MutableList<LexemeChain?> = (0..length)
     .map { LexemeChain(0, false, mutableListOf(root)) }
     .toMutableList()
   
-  var i = 0; while (i <= length) {
+  for (i in 0..length) {
     val c = if (i < length) this[i] else null
-    (s..i).forEach { ii ->
-      val chain = chains[ii]!!
+    var chainI = s; while(chainI <= i) {
+      val chain = chains[chainI]!!
       if (!chain.isBroken) {
         val nextNode = chain.chain.last().nextFor(c)
+        // найдено продолжение текущей цепочки
         if (nextNode != null) {
           chain.chain.add(nextNode)
           if (nextNode.isEnd) chain.lastEndI = chain.chain.lastIndex
         }
+        // не найдено начало пустой цепочки - делаем ошибочную цепочку из 1 символа
+        else if (chain.isEmpty) {
+          val singleWrongNode = LexemeNode(c?.let { LexemeChar(it) }, true)
+          chain.chain.add(singleWrongNode)
+          chain.lastEndI = 1
+          chain.isBroken = true
+        }
+        // не найдено продолжение цепочки
         else {
           chain.isBroken = true
         }
       }
-      if (ii == s) {
-        if (chain.isBroken) {
-          if (i < length) {
-            val token = if (chain.isEmpty) c.toString() else chain.getToken()
-            val e = s + token.length
-            lexemes += Lexeme(token, s, e)
-            // clear memory
-            (s until e).forEach { chains[it] = null }
-            s = e
-          }
+      if (s < length && chainI == s && chain.isBroken) {
+        val token = when {
+          !chain.isEmpty -> chain.getToken()
+          c == null -> ""
+          else -> c.toString()
         }
+        val e = s + token.length
+        //println("c:", c, "token:", token, "s:", s, "e:", e)
+        lexemes += Lexeme(token, s, e)
+        // clear memory from old chains
+        (s..<e).forEach { chains[it] = null }
+        s = e
+        chainI = e
       }
+      else chainI++
     }
-    i++
   }
   
   return lexemes

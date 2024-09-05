@@ -56,6 +56,16 @@ dependencies {
   // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
   implementation("org.apache.logging.log4j:log4j-core:2.21.1")
   implementation(kotlin("reflect"))
+  
+  // JJWT
+  // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
+  implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+  
+  implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
+  
+  implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+  
+  
 
 
   // Annotation Processing:

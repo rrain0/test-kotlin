@@ -1,4 +1,4 @@
-package parser3.`1-lexer`
+package parser.`1-lexer`
 
 
 
@@ -34,7 +34,7 @@ data class LexemeNode(
 
 
 
-fun LexemeNode.addFunctions(functionTokens: List<String>) {
+fun LexemeNode.addStaticTokens(functionTokens: List<String>) {
   functionTokens.forEach { t ->
     if (t.isEmpty()) throw RuntimeException("Token length cannot be 0")
     var node = this

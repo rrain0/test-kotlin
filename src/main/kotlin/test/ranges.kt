@@ -47,7 +47,7 @@ private fun ranges() {
       print(i)
   }
   // kotlin 1.9+ syntax
-  for (i in 1..<10) { // i in 1 until 10, excluding 10
+  for (i in 1..<10) { // i in 1 until 10 (excluding 10)
       print(i)
   }
   
