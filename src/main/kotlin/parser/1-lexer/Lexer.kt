@@ -47,6 +47,7 @@ data class Lexeme(
   val token: String,
   val s: Int,
   val e: Int,
+  val type: LexemeType,
 )
 
 
@@ -63,6 +64,9 @@ data class LexemeChain(
   val isEmpty get() = lastEndI == 0
   fun getToken(): String {
     return (1..lastEndI).joinToString(separator = "") { chain[it].c!!.c.toString() }
+  }
+  fun getType(): LexemeType {
+    return chain[lastEndI].type
   }
 }
 
@@ -89,7 +93,11 @@ fun String.lexify(root: LexemeNode): List<Lexeme> {
         }
         // не найдено начало пустой цепочки - делаем ошибочную цепочку из 1 символа
         else if (chain.isEmpty) {
-          val singleWrongNode = LexemeNode(c?.let { LexemeChar(it) }, true)
+          val singleWrongNode = LexemeNode(
+            c?.let { LexemeChar(it) },
+            isEnd = true,
+            type = LexemeType.UNKNOWN,
+          )
           chain.chain.add(singleWrongNode)
           chain.lastEndI = 1
           chain.isBroken = true
@@ -107,7 +115,7 @@ fun String.lexify(root: LexemeNode): List<Lexeme> {
         }
         val e = s + token.length
         //println("c:", c, "token:", token, "s:", s, "e:", e)
-        lexemes += Lexeme(token, s, e)
+        lexemes += Lexeme(token, s, e, chain.getType())
         // clear memory from old chains
         (s..<e).forEach { chains[it] = null }
         s = e

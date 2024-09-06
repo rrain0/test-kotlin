@@ -1,9 +1,6 @@
 package parser
 
-import parser.`1-lexer`.LexemeNode
-import parser.`1-lexer`.LexemeChar
-import parser.`1-lexer`.addStaticTokens
-import parser.`1-lexer`.lexify
+import parser.`1-lexer`.*
 import util.println
 
 /*
@@ -30,12 +27,12 @@ fun LexemeNode.addNumbers() {
   val dotNode = LexemeNode(dot)
   
   // digits before dot
-  digits.map { this.add(it, isEnd = true) }
+  digits.map { this.add(it, isEnd = true, type = LexemeType.NUMBER) }
     .also { d -> d.forEach { it.next += d } }
     .onEach { it.next += dotNode }
   
   // digits after dot
-  digits.map { dotNode.add(it, isEnd = true) }
+  digits.map { dotNode.add(it, isEnd = true, type = LexemeType.NUMBER) }
     .also { d -> d.forEach { it.next += d } }
 }
 
