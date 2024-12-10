@@ -12,7 +12,7 @@ fun main(){
 inline fun <reified T> Any?.cast(): T = this as T
 
 
-infix fun String.dot(other: String) = this+"."+other
+infix fun String.dot(other: String) = "$this.$other"
 
 fun println(vararg args: Any?) = kotlin.io.println(args.joinToString(" "))
 
@@ -38,20 +38,6 @@ fun <T : Any?>T.mapNull(block: () -> T & Any): T & Any {
 }
 
 
-
-fun f(){
-  val list = listOf("a","b","c").map { it + "1" }
-  
-}
-
-
-fun ff(param1: String = "dsflj", block: ()->Unit){}
-
-fun fff(){
-  ff("dfj", {})
-  ff("dsfj") {}
-  ff {}
-}
 
 
 

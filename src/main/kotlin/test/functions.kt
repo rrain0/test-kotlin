@@ -122,17 +122,28 @@ fun functions() {
             if (abs(x - cos(x)) < eps) x else findFixPoint(cos(x))
     }
 
-    run{
+    run {
         // LAMBDA & Anonymous Function
 
 
         // Lambda parameter
-        fun fun10(a:Int, l: ()->Unit, b:String) { }
+        fun fun10(a: Int, l: () -> Unit, b: String) { }
         // { } - lambda literal
         fun10(1, { }, "b")
         // if lambda the last
-        fun fun11(a:Int, vararg b:String, l: ()->Unit) { }
+        fun fun11(a: Int, vararg b: String, l: () -> Unit) { }
         fun11(1, "1", "2", "3") { println("i am the last parameter lambda!") }
+        
+        
+        run {
+            fun f(param1: String = "dsflj", block: () -> Unit){ }
+            
+            fun fff() {
+                f("dfj", { })
+                f("dsfj") { }
+                f { }
+            }
+        }
 
 
         // GENERIC function (lambdas can't declare generic types)
@@ -156,7 +167,7 @@ fun functions() {
             acc + elem // last expression in lambda is considered as return value
         })
         // if lambda the last, you can write it right after function call
-        sum = list.reduce(0) { acc, elem -> acc + elem}
+        sum = list.reduce(0) { acc, elem -> acc + elem }
         // anonymous function - you can omit contextual parameter types and you can declare return type (in lambda you can't)
         sum = list.reduce(0, fun(acc, elem:Int):Int { return acc + elem } )
 
@@ -193,11 +204,11 @@ fun functions() {
         }
 
         run{
-            fun f(f:(Int,String)->String) = println(f(23,"aaa"))
-            fun ff(f:Int.(String)->String) = println(f(23,"aaa"))
+            fun f(f: (Int, String) -> String) = println(f(23, "aaa"))
+            fun ff(f: Int.(String) -> String) = println(f(23, "aaa"))
 
-            fun f1(i:Int, s:String) = "$i $s"
-            fun Int.f2(s:String) = "$this $s"
+            fun f1(i: Int, s: String) = "$i $s"
+            fun Int.f2(s: String) = "$this $s"
 
             f(::f1) // для ::f1 this просто не существует
             f(Int::f2) // если бы ты писал вызов f внутри класса Int, то вместо Int::f2 можно бы было this::f2 или просто ::f2

@@ -15,15 +15,15 @@ fun main(){
 
 
 
-private fun videoUpscale() {
-  val input = Input { path="""E:\KWORK\кворк 1\работа 2 - Tetris\Tetris 2024-02-06 16-45-05.mp4""" }
-  val output = Output { path="""E:\KWORK\кворк 1\работа 2 - Tetris\Tetris 2024-02-06 16-45-05 (2).mp4""" }
+private fun extractAudio() {
+  val video = Input { path="""E:\ЗАГРУЗКИ\ムーンライト.mp4""" }
+  val output = Output { path="""E:\ЗАГРУЗКИ\Hoshimachi Suisei - Moonlight.aac""" }
   val ffmpeg = ffmpeg {
     
-    stream(input).v().n(1).apply {
+    // audio
+    stream(video).a().n(1).apply {
       codec!!.apply {
-        type = CodecType.H264
-        resolution = Resolution(960,720)
+        type = CodecType.COPY
       }
     }
     
@@ -54,15 +54,18 @@ private fun extractAudioToOgg320k() {
   println(ffmpeg.buildCommand())
 }
 
-private fun extractAudio() {
-  val video = Input { path="""E:\ЗАГРУЗКИ\Crystal Metropolis - Night Prowler.mp4""" }
-  val output = Output { path="""E:\ЗАГРУЗКИ\Crystal Metropolis - Night Prowler.aac""" }
+
+
+
+private fun videoUpscale() {
+  val input = Input { path="""E:\KWORK\кворк 1\работа 2 - Tetris\Tetris 2024-02-06 16-45-05.mp4""" }
+  val output = Output { path="""E:\KWORK\кворк 1\работа 2 - Tetris\Tetris 2024-02-06 16-45-05 (2).mp4""" }
   val ffmpeg = ffmpeg {
     
-    // audio
-    stream(video).a().n(1).apply {
+    stream(input).v().n(1).apply {
       codec!!.apply {
-        type = CodecType.COPY
+        type = CodecType.H264
+        resolution = Resolution(960,720)
       }
     }
     
@@ -71,9 +74,6 @@ private fun extractAudio() {
   
   println(ffmpeg.buildCommand())
 }
-
-
-
 
 private fun extractMeme() {
   
