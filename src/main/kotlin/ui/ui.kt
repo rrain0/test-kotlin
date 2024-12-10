@@ -39,6 +39,61 @@ TODO KTML (Kotlin Text Markup Language)
 7) gap-start & gap-end instead of padding/margin left/right.
    Gap will be applied only if it is between elements (gap will not be applied if element is first/last in row/col).
    Allow negative gap.
+   
+8) Эвенты.
+   ev.defaultActions.<action>.prevent().
+   Разделить эвенты по уровням:
+     1) Raw event: Device code, device action code.
+     2) Simple event: mouse button down, mouse button up, LCtrl down, RCtrl down
+     3) Complex event: pointer down, pointer up, Ctrl down
+     4) Ui event: click, hover / unhover
+   Дать возможность передавать массив листенеров.
+   
+9) Рамка для начала отсчёта координат элемента.
+   divA1 {
+     divA2 {
+       divA3 {
+         // Родителем для координат позиционирования элемента будет не divA2, а divA1
+         frame = divA1.frame
+       }
+     }
+   }
+   divB1 {
+     divB2 {
+         // Родителем для координат позиционирования элемента будет не divB1, а divA2
+       frame = divA2.frame
+     }
+   }
+   
+10) children -> nodes, next, nextNodes
+
+11) Event binding. Заменить вот такую кострукцию на прокидывание эвентов span в button.
+    <label>
+      <button>icon</button>
+      <span>text</span>
+    </label>
+
+12) element height from current line height
+
+13) Приоритеты для margin, padding, content, content min / max, width, height...
+    Возможно даже сделать глобальные приоритеты.
+    Приоритет расширения / сужения элементов.
+    
+    Например есть колонка из 3 элементов, сначала расширить центральный элемент по ширине,
+    высота у него через aspect-ratio,
+    потом расширить по высоте нижний и верхний элементы, не влияя на высоту центрального.
+    Но если верхнему и нижнему не хватает места, то они уменьшат центральный (высокий приоритет min-height).
+    
+13.1) Распределение элементов layout через priority & fraction.
+    Fraction делит пропорционально в рамках текущего приоритета.
+    
+14) p?.[OnlineGameMode.Blitz]?.games as Partial<*>
+
+15) Задать паддинг контейнеру.
+    Дать возможность элементам выбирать,
+    будут ли позиционироваться оотносительно паддинга или относительно границ элемента.
+    Полезно, когда одному элементу в колонке требуется занять всю ширину, игноря паддинги.
+    placeInContainer: element | padding
 */
 
 
