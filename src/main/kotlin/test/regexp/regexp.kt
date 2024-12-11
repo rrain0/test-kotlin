@@ -46,7 +46,7 @@ fun ipPattern(){
     
     someIp = "192.198.*.5"
     matchResult = ipPattern.matchEntire(someIp)
-    println(matchResult==null)
+    println(matchResult == null)
     
     
 }

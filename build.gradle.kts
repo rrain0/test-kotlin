@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-
+val jacksonVer = "2.18.2"
 
 plugins {
-  val kotlinV = "2.0.20"
+  val kotlinV = "2.1.0"
   
   
   kotlin("jvm") version kotlinV
@@ -63,7 +63,15 @@ dependencies {
   
   implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
   
-  implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+  
+  
+  implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVer")
+  // Kotlin Jackson Support
+  // https://github.com/FasterXML/jackson-module-kotlin
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVer")
+  // Java Time Jackson Support
+  // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVer")
   
   
 
