@@ -14,9 +14,8 @@ fun main(){
 
   fun exampleBatchRename(){
     BatchRenameFiles.renameBySeriesNumber(
-      """M:\ВИДЕО\[anime]\Tate no Yuusha no Nariagari  Восхождение героя щита\Tate no Yuusha no Nariagari S02 13 eps JAM 1080p""",
-      listOf(Regex("""\[JAM\] Tate no Yuusha no Nariagari S02E(?<n>\d{2})( END)? ?\[1080p\]\.mp4""")),
-      getOutputName = { """Tate no Yuusha no Nariagari s2e${it.epStr}${if (it.ep==it.commonInfo!!.lastEp) " END" else ""} JAM 1080p""" },
+      """F:\Anime NEW\JAMCLUB 2.0\[ ] Ready\Dungeon Meshi (JAM 24 eps)  Подземелье вкусностей""",
+      getOutputName = { """Dungeon Meshi - ${it.epStr} (JAM 1080p)""" },
       writeNames = false
     )
     BatchRenameFiles.renameBySeriesNumber(
@@ -27,7 +26,13 @@ fun main(){
     BatchRenameFiles.renameBySeriesNumber(
       """M:\[anime]\[работает]\Sugar Apple Fairy Tale [DC]  Сказка о сахарном яблоке""",
       getOutputName = { """Sugar Apple Fairy Tale s1e${it.epStr}${if (it.ep==it.commonInfo!!.lastEp) " END" else ""} (DC 1080p)""" },
-      writeNames = true
+      writeNames = false
+    )
+    BatchRenameFiles.renameBySeriesNumber(
+      """M:\ВИДЕО\[anime]\Tate no Yuusha no Nariagari  Восхождение героя щита\Tate no Yuusha no Nariagari S02 13 eps JAM 1080p""",
+      listOf(Regex("""\[JAM\] Tate no Yuusha no Nariagari S02E(?<n>\d{2})( END)? ?\[1080p\]\.mp4""")),
+      getOutputName = { """Tate no Yuusha no Nariagari s2e${it.epStr}${if (it.ep==it.commonInfo!!.lastEp) " END" else ""} JAM 1080p""" },
+      writeNames = false
     )
   }
 
@@ -71,31 +76,31 @@ object BatchRenameFiles {
   fun renameBySeriesNumber(
     containingFolder: String,
     namePatterns: List<Regex> = namePatternsDefault,
-    getEpInt: (match: MatchResult)->Int = ::getEpIntDefault,
-    getOutputName: (info: Info)->String,
+    getEpInt: (match: MatchResult) -> Int = ::getEpIntDefault,
+    getOutputName: (info: Info) -> String,
     autoExtensions: Boolean = true,
     writeNames: Boolean = false,
   ) = renameBySeriesNumber(containingFolder, namePatterns, getEpInt, ::mapToInfoDefault, getOutputName, autoExtensions, writeNames)
   fun <T : Info>renameBySeriesNumber(
     containingFolder: String,
     namePatterns: List<Regex> = namePatternsDefault,
-    getEpInt: (match: MatchResult)->Int = ::getEpIntDefault,
-    mapToInfo: (info: InfoWithMatch)->T,
-    getOutputName: (info: T)->String,
+    getEpInt: (match: MatchResult) -> Int = ::getEpIntDefault,
+    mapToInfo: (info: InfoWithMatch) -> T,
+    getOutputName: (info: T) -> String,
     autoExtensions: Boolean = true,
     writeNames: Boolean = false,
-  ){
-    val seriesMap = mutableMapOf<Int,InfoWithMatch>()
+  ) {
+    val seriesMap = mutableMapOf<Int, InfoWithMatch>()
     File(containingFolder).listFiles()!!.forEach { f ->
-      if (f.isFile){
+      if (f.isFile) {
         val name = f.name
         var matchResult: MatchResult? = null
-        for (p in namePatterns){
+        for (p in namePatterns) {
           matchResult = p.matchEntire(name)
-          if (matchResult!=null) break
+          if (matchResult != null) break
         }
 
-        if (matchResult!=null){
+        if (matchResult != null) {
           val info = InfoWithMatch(containingFolder, name, null, matchResult)
           info.ep = getEpInt(info.match)
           if (info.ep in seriesMap) throw RuntimeException("Duplicate series number: ${info.ep}")
@@ -127,9 +132,11 @@ object BatchRenameFiles {
     }
   }
   private val namePatternsDefault = listOf(
+    // Ищет номер эпизода из 2-3 цифр, окружённый пробелом или нижгим подчёркиванием
     Regex(""".*?s(?<s>\d{1,2})e(?<n>\d{2,3}).*""", RegexOption.IGNORE_CASE),
-    Regex(""".*?(?<n>\d{2,3}).*"""),
-    Regex(""".*?(?<!(s|(mp)|(season )))(?<n>\d{1,3}).*""", RegexOption.IGNORE_CASE),
+    // Ищет номер эпизода из 2-3 цифр, окружённый пробелом или нижгим подчёркиванием
+    Regex(""".*?[ _](?<n>\d{2,3})[ _].*"""),
+    //Regex(""".*?(?<!(s|(mp)|(season )))(?<n>\d{1,3}).*""", RegexOption.IGNORE_CASE),
   )
   private fun getEpIntDefault(match: MatchResult) = match.groups["n"]!!.value.toInt()
   private fun mapToInfoDefault(info: InfoWithMatch) = Info(info.path, info.name, info.ep, info.commonInfo)

@@ -2,8 +2,8 @@ package ffmpeg
 
 
 fun main(){
-  //extractAudioToOgg320k()
-  extractAudio()
+  extractAudioToOgg320k()
+  //extractAudio()
   
   //extractMeme()
   
