@@ -14,8 +14,8 @@ fun main(){
 
   fun exampleBatchRename(){
     BatchRenameFiles.renameBySeriesNumber(
-      """F:\Anime NEW\JAMCLUB 2.0\[ ] Ready\Dungeon Meshi (JAM 24 eps)  Подземелье вкусностей""",
-      getOutputName = { """Dungeon Meshi - ${it.epStr} (JAM 1080p)""" },
+      """F:\Anime NEW\JAMCLUB 2.0\[ ] Ready\Re-Monster (JAM 12 eps)  Перерождение в монстра""",
+      getOutputName = { """Re-Monster - ${it.epStr} (JAM 1080p)""" },
       writeNames = false
     )
     BatchRenameFiles.renameBySeriesNumber(
