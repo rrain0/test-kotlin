@@ -1,6 +1,6 @@
 package test.regexp.`batch-file-rename`
 
-import util.dot
+import util.String.dot
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -25,13 +25,13 @@ fun main(){
     )
     BatchRenameFiles.renameBySeriesNumber(
       """M:\[anime]\[работает]\Sugar Apple Fairy Tale [DC]  Сказка о сахарном яблоке""",
-      getOutputName = { """Sugar Apple Fairy Tale s1e${it.epStr}${if (it.ep==it.commonInfo!!.lastEp) " END" else ""} (DC 1080p)""" },
+      getOutputName = { """Sugar Apple Fairy Tale s1e${it.epStr}${if (it.ep == it.commonInfo!!.lastEp) " END" else ""} (DC 1080p)""" },
       writeNames = false
     )
     BatchRenameFiles.renameBySeriesNumber(
       """M:\ВИДЕО\[anime]\Tate no Yuusha no Nariagari  Восхождение героя щита\Tate no Yuusha no Nariagari S02 13 eps JAM 1080p""",
       listOf(Regex("""\[JAM\] Tate no Yuusha no Nariagari S02E(?<n>\d{2})( END)? ?\[1080p\]\.mp4""")),
-      getOutputName = { """Tate no Yuusha no Nariagari s2e${it.epStr}${if (it.ep==it.commonInfo!!.lastEp) " END" else ""} JAM 1080p""" },
+      getOutputName = { """Tate no Yuusha no Nariagari s2e${it.epStr}${if (it.ep == it.commonInfo!!.lastEp) " END" else ""} JAM 1080p""" },
       writeNames = false
     )
   }

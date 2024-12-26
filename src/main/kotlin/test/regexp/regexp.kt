@@ -4,7 +4,7 @@ package test.regexp
 
 
 
-fun durationPattern(){
+fun durationPattern() {
   val durationPattern = Regex("""((?<h>\d+)h)?((?<m>\d+)m)?((?<s>\d+)s)?""")
   val match = durationPattern.matchEntire("1h46m")
   val h = match?.groups?.get("h")?.value
@@ -14,7 +14,7 @@ fun durationPattern(){
 }
 
 
-fun ipPattern(){
+fun ipPattern() {
     
     
     var someIp = "192.198.3.5"
