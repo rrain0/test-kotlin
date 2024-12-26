@@ -16,8 +16,8 @@ fun main(){
 
 
 private fun extractAudio() {
-  val video = Input { path="""E:\ЗАГРУЗКИ\ムーンライト.mp4""" }
-  val output = Output { path="""E:\ЗАГРУЗКИ\Hoshimachi Suisei - Moonlight.aac""" }
+  val video = Input { path = """E:\ЗАГРУЗКИ\ムーンライト.mp4""" }
+  val output = Output { path = """E:\ЗАГРУЗКИ\Hoshimachi Suisei - Moonlight.aac""" }
   val ffmpeg = ffmpeg {
     
     // audio
@@ -36,8 +36,8 @@ private fun extractAudio() {
 
 
 private fun extractAudioToOgg320k() {
-  val video = Input { path="""E:\ЗАГРУЗКИ\【GhostFinal】One Hit Kill 「Girls Frontline 2 OST」 【ドールズフロントライン 2】Official.mkv""" }
-  val output = Output { path="""E:\ЗАГРУЗКИ\【GhostFinal】One Hit Kill 「Girls Frontline 2 OST」 【ドールズフロントライン 2】Official.ogg""" }
+  val video = Input { path = """E:\ЗАГРУЗКИ\【GhostFinal】One Hit Kill 「Girls Frontline 2 OST」 【ドールズフロントライン 2】Official.mkv""" }
+  val output = Output { path = """E:\ЗАГРУЗКИ\【GhostFinal】One Hit Kill 「Girls Frontline 2 OST」 【ドールズフロントライン 2】Official.ogg""" }
   val ffmpeg = ffmpeg {
     
     // audio

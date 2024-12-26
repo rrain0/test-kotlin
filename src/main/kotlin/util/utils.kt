@@ -1,7 +1,7 @@
 package util
 
 
-fun main(){
+fun main() {
   //pipeMapTest()
 }
 
@@ -28,7 +28,7 @@ data class PipeMapResult<T : Any?, R : Any?>(
   constructor(obj: T, result: R) : this(obj, result, true)
 
   inline fun mapTrue(action: T.()->R): PipeMapResult<T,R> {
-    if (this.obj==true) return this.apply {
+    if (this.obj == true) return this.apply {
       result = obj.action()
       resultIsPresent = true
     }

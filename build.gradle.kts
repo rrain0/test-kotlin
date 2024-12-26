@@ -1,4 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 val jacksonVer = "2.18.2"
 
@@ -64,6 +65,9 @@ dependencies {
   implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
   
   
+  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-datetime
+  implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+  
   
   implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVer")
   // Kotlin Jackson Support
@@ -101,8 +105,10 @@ tasks.test {
   useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile> {
-  kotlinOptions.jvmTarget = "17"
+tasks.withType<KotlinJvmCompile> {
+  compilerOptions {
+    jvmTarget.set(JvmTarget.JVM_17)
+  }
 }
 
 application {
