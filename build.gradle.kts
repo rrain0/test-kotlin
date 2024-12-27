@@ -19,7 +19,7 @@ plugins {
 
 
 
-group = "com.rrain"
+group = "com.rrain.testkotlin"
 version = "0.0.1"
 
 repositories {
