@@ -1,7 +1,7 @@
 package parser
 
 import parser.`1-lexer`.*
-import util.Print.println
+import com.rrain.util.print.println
 
 /*
 Пробелы: " ", "\n", "\t", ...

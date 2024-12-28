@@ -1,4 +1,4 @@
-package util.String
+package com.rrain.util.string
 
 import java.util.*
 

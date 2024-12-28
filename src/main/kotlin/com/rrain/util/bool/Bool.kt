@@ -1,4 +1,4 @@
-package util.Bool
+package com.rrain.util.bool
 
 
 

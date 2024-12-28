@@ -1,4 +1,4 @@
-package test.json.jackson
+package com.rrain.util.json
 
 import com.fasterxml.jackson.core.json.JsonReadFeature
 import com.fasterxml.jackson.core.json.JsonWriteFeature

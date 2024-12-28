@@ -5,7 +5,7 @@ import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
-import util.Print.println
+import com.rrain.util.print.println
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 

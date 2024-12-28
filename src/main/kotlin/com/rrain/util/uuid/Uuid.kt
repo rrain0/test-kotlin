@@ -1,4 +1,4 @@
-package util
+package com.rrain.util.uuid
 
 import java.util.*
 

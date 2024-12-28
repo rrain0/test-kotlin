@@ -1,7 +1,7 @@
 package work.`opponent-avatars-flat-config`
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import test.json.jackson.configureJsonPrettier
+import com.rrain.util.json.configureJsonPrettier
 import java.io.File
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
