@@ -1,7 +1,7 @@
 package work.`opponent-avatars-flat-config`
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import test.json.jackson.configureJacksonPrettier
+import test.json.jackson.configureJsonPrettier
 import java.io.File
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -31,7 +31,7 @@ fun main() {
 fun makeFlatConfig() {
   processDir(File(sourceDir), DirType.Level, AvaData())
   
-  val jsonObjectMapper = ObjectMapper().configureJacksonPrettier()
+  val jsonObjectMapper = ObjectMapper().configureJsonPrettier()
   val configContent = jsonObjectMapper.writeValueAsString(avatars)
   File("""$destinationDir\opponent-avatars.config.json""").writeText(configContent)
 }

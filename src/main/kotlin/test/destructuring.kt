@@ -1,8 +1,5 @@
 package test.destructuring
 
-import java.io.BufferedReader
-import java.io.FileReader
-
 
 fun main() {
   destructuring()

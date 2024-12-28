@@ -1,7 +1,7 @@
 package work.`opponent-avatars-grouped-config`
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import test.json.jackson.configureJacksonPrettier
+import test.json.jackson.configureJsonPrettier
 import java.io.File
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -33,7 +33,7 @@ fun main() {
 fun makeConfig() {
   processDir(File(sourceDir), DirType.Level, AvaData())
   
-  val jsonObjectMapper = ObjectMapper().configureJacksonPrettier()
+  val jsonObjectMapper = ObjectMapper().configureJsonPrettier()
   val groupCnt: MutableMap<String, MutableMap<String, MutableMap<String, Int>>> = mutableMapOf()
   levels.forEach { l ->
     groupCnt[l] = mutableMapOf()
