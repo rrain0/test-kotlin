@@ -3,6 +3,21 @@ package test.regexp
 
 
 
+fun main() {
+  run {
+    val snakeCase = "place_sub_type_0a"
+    val camelCase = snakeCase.snakeCaseToCamelCase() // => placeSubType0a
+    println("snake case to camel case: $snakeCase -> $camelCase")
+  }
+  run {
+    val camelCase = "placeSubType0a"
+    val kebabCase = camelCase.camelCaseToKebabCase() // => place-sub-type0a
+    println("camel case to kebab case: $camelCase -> $kebabCase")
+  }
+  
+}
+
+
 
 fun durationPattern() {
   val durationPattern = Regex("""((?<h>\d+)h)?((?<m>\d+)m)?((?<s>\d+)s)?""")
@@ -52,9 +67,15 @@ fun ipPattern() {
 }
 
 
-fun snakeCaseToCamelCase(){
-  val pattern = Regex("""_[\da-zA-Z]""")
-  println("place_sub_type_0a: ${pattern.replace("place_sub_type_0a",{ mr -> mr.value[1].uppercase() })}")
+fun String.snakeCaseToCamelCase(): String {
+  val pattern = Regex("""_[^_]""")
+  return pattern.replace(this, { mr -> mr.value[1].uppercase() })
+}
+
+fun String.camelCaseToKebabCase(): String {
+  // \p{Lu} - match letter uppercase, \d+ - match 1+ digit
+  val pattern = Regex("""(\p{Lu})|(\d+)""")
+  return pattern.replace(this, { mr -> "-${mr.value.lowercase()}" })
 }
 
 

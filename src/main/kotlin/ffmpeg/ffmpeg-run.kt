@@ -2,8 +2,8 @@ package ffmpeg
 
 
 fun main(){
-  extractAudioToOgg320k()
-  //extractAudio()
+  //extractAudioToOgg320k()
+  extractAudio()
   
   //extractMeme()
   
@@ -16,8 +16,8 @@ fun main(){
 
 
 private fun extractAudio() {
-  val video = Input { path = """E:\ЗАГРУЗКИ\ムーンライト.mp4""" }
-  val output = Output { path = """E:\ЗАГРУЗКИ\Hoshimachi Suisei - Moonlight.aac""" }
+  val video = Input { path = """E:\ЗАГРУЗКИ\Hoshimachi Suisei - Wicked.mkv""" }
+  val output = Output { path = """E:\ЗАГРУЗКИ\Hoshimachi Suisei - Wicked.ogg""" }
   val ffmpeg = ffmpeg {
     
     // audio
