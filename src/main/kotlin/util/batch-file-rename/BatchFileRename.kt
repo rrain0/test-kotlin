@@ -10,10 +10,9 @@ import java.nio.file.Path
 
 
 fun main() {
-  
 
 
-  fun exampleBatchRename(){
+  fun exampleBatchRename() {
     BatchRenameFiles.renameBySeriesNumber(
       """F:\Anime NEW\JAMCLUB 2.0\[ ] Ready\Re-Monster (JAM 12 eps)  Перерождение в монстра""",
       getOutputName = { """Re-Monster - ${it.epStr} (JAM 1080p)""" },
@@ -133,11 +132,17 @@ object BatchRenameFiles {
     }
   }
   private val namePatternsDefault = listOf(
+    
     // Ищет номер эпизода из 2-3 цифр, окружённый пробелом или нижгим подчёркиванием
     Regex(""".*?s(?<s>\d{1,2})e(?<n>\d{2,3}).*""", RegexOption.IGNORE_CASE),
+    
     // Ищет номер эпизода из 2-3 цифр, окружённый пробелом или нижгим подчёркиванием
     Regex(""".*?[ _](?<n>\d{2,3})[ _].*"""),
+    
     //Regex(""".*?(?<!(s|(mp)|(season )))(?<n>\d{1,3}).*""", RegexOption.IGNORE_CASE),
+    
+    // Просто ищет цифры
+    Regex("""(^|(.*?[ _]))(?<n>\d{1,3})(([ _].*)|$)"""),
   )
   private fun getEpIntDefault(match: MatchResult) = match.groups["n"]!!.value.toInt()
   private fun mapToInfoDefault(info: InfoWithMatch) = Info(info.path, info.name, info.ep, info.commonInfo)

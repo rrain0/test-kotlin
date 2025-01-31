@@ -5,16 +5,20 @@ package test.regexp
 
 fun main() {
   run {
-    val snakeCase = "place_sub_type_0a"
+    val snakeCase = "place_sub_type_0123a"
     val camelCase = snakeCase.snakeCaseToCamelCase() // => placeSubType0a
     println("snake case to camel case: $snakeCase -> $camelCase")
   }
   run {
-    val camelCase = "placeSubType0a"
+    val camelCase = "placeSubType0123aHTMLanguage"
     val kebabCase = camelCase.camelCaseToKebabCase() // => place-sub-type0a
     println("camel case to kebab case: $camelCase -> $kebabCase")
   }
-  
+  run {
+    val camelCase = "placeSubType0123aHTMLanguage"
+    val words = camelCase.camelCaseToWords()
+    println("camel case to words: $camelCase -> $words")
+  }
 }
 
 
@@ -74,11 +78,14 @@ fun String.snakeCaseToCamelCase(): String {
 
 fun String.camelCaseToKebabCase(): String {
   // \p{Lu} - match letter uppercase, \d+ - match 1+ digit
-  val pattern = Regex("""(\p{Lu})|(\d+)""")
+  val pattern = Regex("""\p{Lu}|\d+""")
   return pattern.replace(this, { mr -> "-${mr.value.lowercase()}" })
 }
 
-
+fun String.camelCaseToWords(): List<String> {
+  val pattern = Regex("""(?<=\p{Ll}|\p{Lu})(?=\p{Lu}|\d+)""")
+  return this.split(pattern)
+}
 
 
 private fun usingGroups() {
