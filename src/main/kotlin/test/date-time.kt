@@ -50,6 +50,7 @@ fun main() {
     val localDateTime = LocalDateTime(
       year = 2024,
       month = Month.JULY,
+      //monthNumber = 7, // another variant
       dayOfMonth = 31,
       hour = 11,
       minute = 10,
@@ -57,6 +58,8 @@ fun main() {
       nanosecond = 0,
     )
     println("localDateTime.toString()", localDateTime.toString())
+    
+    val instantFromLocalDateTime = localDateTime.toInstant(TimeZone.of("Asia/Irkutsk"))
     
     val localDateTimeFromInstant = Clock.System.now().toLocalDateTime(TimeZone.of("UTC+8"))
     println("localDateTimeFromInstant.toString()", localDateTimeFromInstant.toString())

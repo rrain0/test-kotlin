@@ -106,7 +106,7 @@ fun collections(){
     run {
         /*
             The read-only collection types are covariant.
-            This means that, if a Rectangle class inherits from Shape,
+            This means that if a Rectangle class inherits from Shape,
             you can use a List<Rectangle> anywhere the List<Shape> is required (List is readonly, MutableList is mutable).
             In other words, the collection types have the same subtyping relationship as the element types.
             Maps are covariant on the value type, but not on the key type.
@@ -283,10 +283,13 @@ fun collections(){
         // OPERATIONS:
         
         // "in" means "contains"
-        val list = listOf("apple", "avocado", "banana", "kiwifruit")
-        val set = setOf("apple", "avocado", "banana", "kiwifruit")
+        val list = mutableListOf("apple", "avocado", "banana", "kiwifruit")
+        val set = mutableSetOf("apple", "avocado", "banana", "kiwifruit")
         
         val appleInList: Boolean = "apple" in list
+        
+        // add "melon" to list
+        list += "melon"
         
         // Operations like filter, map, ... create a NEW collection
         // If you want to specify destination collection (mutable), you can use filterTo instead of filter and so on. New content will be appended to destination.

@@ -1,9 +1,23 @@
 package test.regexp
 
 
-
+// В котлине у самой регулярки нет понятия последненго сохранённого индекса символа,
+// тут надо брать матч
 
 fun main() {
+  testIfEntireStringMatches()
+}
+
+
+fun testIfEntireStringMatches() {
+  val r = Regex("""\d{2,4}""")
+  println(r.matches("a123")) // false
+  println(r.matches("123")) // true
+  println(r.matches("1")) // false
+}
+
+
+fun caseConvert() {
   run {
     val snakeCase = "place_sub_type_0123a"
     val camelCase = snakeCase.snakeCaseToCamelCase() // => placeSubType0a

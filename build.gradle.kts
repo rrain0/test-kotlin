@@ -32,7 +32,7 @@ dependencies {
   testImplementation(kotlin("test"))
 
   // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
   // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
   // https://github.com/Kotlin/kotlinx.serialization
@@ -105,10 +105,8 @@ tasks.test {
   useJUnitPlatform()
 }
 
-tasks.withType<KotlinJvmCompile> {
-  compilerOptions {
-    jvmTarget.set(JvmTarget.JVM_17)
-  }
+kotlin {
+  jvmToolchain(21)
 }
 
 application {

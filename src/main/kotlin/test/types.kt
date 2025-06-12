@@ -102,11 +102,11 @@ private fun typesTest() {
   run {
 
     // объявление константы, cannot be reassigned
-    val num1:Int = 8
+    val num1: Int = 8
 
     // можно объявить без присваивания, но присвоить можно только раз
     // делать ничего с неинициализированной константой не получится
-    val num2:Int
+    val num2: Int
     num2 = 6
 
 
@@ -114,7 +114,7 @@ private fun typesTest() {
     // ПЕРЕМЕННЫЕ
 
     // ? разрешает значению быть null
-    var num3:Int? = null
+    var num3: Int? = null
     num3 = 7
 
     // автовывод типа
@@ -159,10 +159,10 @@ private fun typesTest() {
 
   // UNSIGNED INTEGER TYPES
   run {
-    var ubyte:UByte = 255u // 1 байт [0; 255]
-    var ushort:UShort = 65535u // 2 байта [0; 65535]
-    var uint:UInt = 4_294_967_295u // 4 байта [0; 4_294_967_295 (2^32 - 1)]
-    var ulong:ULong = 18_446_744_073_709_551_615u // 8 байт [0; 18_446_744_073_709_551_615 (2^64 - 1)]
+    var ubyte: UByte = 255u // 1 байт [0; 255]
+    var ushort: UShort = 65535u // 2 байта [0; 65535]
+    var uint: UInt = 4_294_967_295u // 4 байта [0; 4_294_967_295 (2^32 - 1)]
+    var ulong: ULong = 18_446_744_073_709_551_615u // 8 байт [0; 18_446_744_073_709_551_615 (2^64 - 1)]
 
     // по умолчанию UInt, если вмещается, иначе ULong
     var defaultUInt = 7 // UInt
@@ -186,19 +186,21 @@ private fun typesTest() {
     // YOU CAN CONTROL SIGN !!!
     println("(0xFF_FF_FF_FF_FF_FF_FFu).toLong(): ${(0xFF_FF_FF_FF_FF_FF_FF_FFu).toLong()}") // => -1
     // get unsigned string representation of signed number:
-    println("(6).toUInt().toString(2).padStart(32,'0'): " +
-    (6).toUInt().toString(2).padStart(32,'0')
+    println(
+      "(6).toUInt().toString(2).padStart(32,'0'): " +
+      (6).toUInt().toString(2).padStart(32,'0')
     ) // => 00000000000000000000000000000110 // all 32 bits
-    println("(-6).toUInt().toString(2).padStart(32,'0'): " +
-    (-6).toUInt().toString(2).padStart(32,'0')
+    println(
+      "(-6).toUInt().toString(2).padStart(32,'0'): " +
+      (-6).toUInt().toString(2).padStart(32,'0')
     ) // => 11111111111111111111111111111010 // all 32 bits
   }
 
   // ДРОБНЫЕ ТИПЫ (с плавающей точкой)
   run {
 
-    var float:Float = 127.5f // литерал Float (обязательно с f)
-    var double:Double = 127.0 // литерал Double (обязательно с точкой)
+    var float: Float = 127.5f // литерал Float (обязательно с f)
+    var double: Double = 127.0 // литерал Double (обязательно с точкой)
 
     println("5 / 3.0: ${5 / 3.0}") // => 1.6666666666666667 - один из типов - дробный, так что всё преобразуется к дробным
   }
@@ -207,13 +209,13 @@ private fun typesTest() {
   run {
     // У каждого числового типа есть эти методы
     var a = 8
-    var byte:Byte = 120.toByte()
-    var short:Short = 80.toShort()
-    var int:Int = 8.toInt()
-    var long:Long = a.toLong()
-    var float:Float = a.toFloat()
-    var double:Double = a.toDouble()
-    var char:Char = a.toChar()
+    var byte: Byte = 120.toByte()
+    var short: Short = 80.toShort()
+    var int: Int = 8.toInt()
+    var long: Long = a.toLong()
+    var float: Float = a.toFloat()
+    var double: Double = a.toDouble()
+    var char: Char = a.toChar()
     // есть ещё toUByte, toUShort, toUInt, toULong
     (120).toByte()
   }
@@ -312,10 +314,18 @@ private fun typesTest() {
     var o1: Any? = "lkdsjf"
     var o2: Any? = null
     o1 as String // cast to String
-    (o2 as? Int)?.let {} // cast to Int if nonnull & doing smth
+    var o3: Int? = o2 as? Int // cast to Int or else null
+    (o2 as? Int)?.let {} // if cast to Int then do smth
     o2 as Int?// cast to Int?
 
     o2.cast<Int?>()?.let {}// cast to Int? & doing smth
+    
+    fun nullableCast() {
+      var a: Any? = "123"
+      // cast to Int or else result will be null then return
+      a as? Int ?: return
+      var b = a + 4
+    }
   }
 
 }

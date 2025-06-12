@@ -2,8 +2,9 @@ package ffmpeg
 
 
 fun main(){
+  //extractAudio()
   //extractAudioToOgg320k()
-  extractAudio()
+  extractAudioToMp320k()
   
   //extractMeme()
   
@@ -16,8 +17,8 @@ fun main(){
 
 
 private fun extractAudio() {
-  val video = Input { path = """E:\ЗАГРУЗКИ\Hoshimachi Suisei - Wicked.mkv""" }
-  val output = Output { path = """E:\ЗАГРУЗКИ\Hoshimachi Suisei - Wicked.ogg""" }
+  val video = Input { path = """E:\ЗАГРУЗКИ\3e what du︎.mkv""" }
+  val output = Output { path = """E:\ЗАГРУЗКИ\CVllXXX - 3E WHAT DU.ogg""" }
   val ffmpeg = ffmpeg {
     
     // audio
@@ -44,6 +45,26 @@ private fun extractAudioToOgg320k() {
     stream(video).a().n(1).apply {
       codec!!.apply {
         type = CodecType.OGG
+        bitrate = "320k"
+      }
+    }
+    
+    output(output)
+  }
+  
+  println(ffmpeg.buildCommand())
+}
+
+
+private fun extractAudioToMp320k() {
+  val video = Input { path = """E:\[temp music]\CVllXXX - YGDRASYL.ogg""" }
+  val output = Output { path = """E:\[temp music]\CVllXXX - YGDRASYL.mp3""" }
+  val ffmpeg = ffmpeg {
+    
+    // audio
+    stream(video).a().n(1).apply {
+      codec!!.apply {
+        type = CodecType.MP3
         bitrate = "320k"
       }
     }

@@ -59,31 +59,31 @@ fun main(){
 // Coroutines do not create separate thread
 
 /*
-    ● runBlocking {}:
+    ● runBlocking { }:
         The name of runBlocking means that the thread that runs it
         gets blocked for the duration of the call,
         until all the coroutines inside runBlocking { ... } complete their execution.
 
-    ● coroutineScope {}:
+    ● coroutineScope { }:
         waits for all nested coroutines complete then completes itself.
         unlike runBlocking - does not block the thread, only suspends it.
         Например если coroutineScope { launch { ... } }, то coroutineScope не завершится,
         пока job из этого launch не завершится.
 
-    ● withContext(context) {}:
+    ● withContext(context) { }:
         Calls the specified suspending block with a given coroutine context,
         suspends until it completes, and returns the result.
             withContext(NonCancelable)
             withContext(Dispatchers.IO)
         ● Returns usual result of block execution.
 
-    ● launch {}:
+    ● launch { }:
         launch is a coroutine builder.
         It launches a new coroutine concurrently with the rest of the code,
         which continues to work independently.
         ● Returns Job.
 
-    ● async {}:
+    ● async { }:
         it is like launch {}, but returns result value.
         ● Returns Deferred.
 
@@ -118,7 +118,11 @@ fun main(){
 
     ● Mutex (instead of ReentrantLock in sync world) and ● Semaphore
  */
-private fun coroutines(){
+
+
+
+
+private fun coroutines() {
     fun main() = runBlocking { // this: CoroutineScope
         launch { // launch a new coroutine and continue
             delay(1000L) // non-blocking delay for 1 second (default time unit is ms)
@@ -151,7 +155,7 @@ private suspend fun suspendableGetOne(): Int {
     return 1
 }
 
-private suspend fun doWorld(){
+private suspend fun doWorld() {
     delay(1000L)
     println("World!")
 }
@@ -189,7 +193,7 @@ private fun test2() = runBlocking {
     doHelloWorld12()
     println("Done") // doesn't print until doHelloWorld() complete
 }
-// next code doesn't execute until all coroutines complete inside coroutineScope {}
+// next code doesn't execute until all coroutines complete inside coroutineScope { }
 private suspend fun doHelloWorld12() = coroutineScope {
     // two launch {} are working concurrently
     launch {

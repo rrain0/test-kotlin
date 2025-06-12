@@ -125,7 +125,7 @@ data class Resolution(
   }
 }
 
-enum class CodecType(val command: String){
+enum class CodecType(val command: String) {
   COPY("copy"),
 
   H264("libx264"),
@@ -133,6 +133,7 @@ enum class CodecType(val command: String){
   AV1("libsvtav1"), // -c libsvtav1 -preset 4 -crf 20
 
   OGG("libvorbis"), // -c libvorbis -b 192k
+  MP3("mp3"), // -c mp3 -b 320k
 
   // for .mp4
   MOV_TEXT("mov_text"), // -c mov_text
