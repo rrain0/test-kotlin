@@ -1,15 +1,15 @@
 package test
 
 
-fun main(){
+fun main() {
   stringsTest()
 }
 
 
-private operator fun String.inc() = this+" "
-private infix fun String.sp(s:String) = this+" "+s
+private operator fun String.inc() = this + " "
+private infix fun String.sp(s:String) = this + " " + s
 
-private fun stringsTest(){
+private fun stringsTest() {
   run {
     var s = "str"
     s++
@@ -64,6 +64,13 @@ private fun stringsTest(){
     // escaping of '$'
     val ssmEscaped = """multilene: ${'$'}sometning"""
     val escaped = listOf("\$a","""${'$'}""")
+    
+    // Multi-dollar interpolation
+    // Before string literal write required quantitiy of $.
+    // Use configured quantity to use template.
+    // Less quantity is treated as usual character
+    val multiDollarInterpolation2 =$$"a$aa$$s"
+    val multiDollarInterpolation3 =$$$"a$$aa$$$s"
   }
 
   run {

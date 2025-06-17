@@ -315,10 +315,10 @@ private fun typesTest() {
     var o2: Any? = null
     o1 as String // cast to String
     var o3: Int? = o2 as? Int // cast to Int or else null
-    (o2 as? Int)?.let {} // if cast to Int then do smth
+    (o2 as? Int)?.let { } // if cast to Int then do smth
     o2 as Int?// cast to Int?
 
-    o2.cast<Int?>()?.let {}// cast to Int? & doing smth
+    o2.cast<Int?>()?.let { }// cast to Int? & doing smth
     
     fun nullableCast() {
       var a: Any? = "123"

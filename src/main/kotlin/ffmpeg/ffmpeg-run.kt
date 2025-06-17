@@ -1,7 +1,7 @@
 package ffmpeg
 
 
-fun main(){
+fun main() {
   //extractAudio()
   //extractAudioToOgg320k()
   extractAudioToMp320k()

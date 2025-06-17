@@ -80,14 +80,16 @@ fun ObjectMapper.configureJsonTypes(): ObjectMapper {
     SimpleModule()
       // ZonedDateTime
       .addSerializer(
-        ZonedDateTime::class, object : StdSerializer<ZonedDateTime>(ZonedDateTime::class.java) {
+        ZonedDateTime::class,
+        object : StdSerializer<ZonedDateTime>(ZonedDateTime::class.java) {
           override fun serialize(value: ZonedDateTime, gen: JsonGenerator, provider: SerializerProvider) {
             return gen.writeString(value.format(zonedDateTimeFormatter))
           }
         }
       )
       .addDeserializer(
-        ZonedDateTime::class, object : StdDeserializer<ZonedDateTime>(ZonedDateTime::class.java) {
+        ZonedDateTime::class,
+        object : StdDeserializer<ZonedDateTime>(ZonedDateTime::class.java) {
           override fun deserialize(p: JsonParser, ctxt: DeserializationContext): ZonedDateTime {
             return p.valueAsString.toZonedDateTime()
           }
@@ -96,14 +98,16 @@ fun ObjectMapper.configureJsonTypes(): ObjectMapper {
       
       // LocalDate
       .addSerializer(
-        LocalDate::class, object : StdSerializer<LocalDate>(LocalDate::class.java) {
+        LocalDate::class,
+        object : StdSerializer<LocalDate>(LocalDate::class.java) {
           override fun serialize(value: LocalDate, gen: JsonGenerator, provider: SerializerProvider) {
             return gen.writeString(value.format(localDateFormat))
           }
         }
       )
       .addDeserializer(
-        LocalDate::class, object : StdDeserializer<LocalDate>(LocalDate::class.java) {
+        LocalDate::class,
+        object : StdDeserializer<LocalDate>(LocalDate::class.java) {
           override fun deserialize(p: JsonParser, ctxt: DeserializationContext): LocalDate {
             return p.valueAsString.toLocalDate()
           }
@@ -112,14 +116,16 @@ fun ObjectMapper.configureJsonTypes(): ObjectMapper {
       
       // java.util.UUID
       .addSerializer(
-        UUID::class, object : StdSerializer<UUID>(UUID::class.java) {
+        UUID::class,
+        object : StdSerializer<UUID>(UUID::class.java) {
           override fun serialize(value: UUID, gen: JsonGenerator, provider: SerializerProvider) {
             return gen.writeString(value.toString())
           }
         }
       )
       .addDeserializer(
-        UUID::class, object : StdDeserializer<UUID>(UUID::class.java) {
+        UUID::class,
+        object : StdDeserializer<UUID>(UUID::class.java) {
           override fun deserialize(p: JsonParser, ctxt: DeserializationContext): UUID {
             return p.valueAsString.toUuid()
           }
@@ -128,14 +134,16 @@ fun ObjectMapper.configureJsonTypes(): ObjectMapper {
     
     // ObjectId for MongoDB
     /*.addSerializer(
-      ObjectId::class, object : StdSerializer<ObjectId>(ObjectId::class.java) {
+      ObjectId::class,
+      object : StdSerializer<ObjectId>(ObjectId::class.java) {
         override fun serialize(value: ObjectId, gen: JsonGenerator, provider: SerializerProvider) {
           return gen.writeString(value.toHexString())
         }
       }
     )
     .addDeserializer(
-      ObjectId::class, object : StdDeserializer<ObjectId>(ObjectId::class.java) {
+      ObjectId::class,
+      object : StdDeserializer<ObjectId>(ObjectId::class.java) {
         override fun deserialize(p: JsonParser, ctxt: DeserializationContext): ObjectId {
           return p.valueAsString.let(::ObjectId)
         }

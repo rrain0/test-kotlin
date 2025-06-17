@@ -1,4 +1,4 @@
-package test.multithreading
+package test.multithreading.multithreading
 
 import java.util.concurrent.locks.ReentrantLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
@@ -105,7 +105,7 @@ private fun testStampedLock(){
 
 // you can use extensions to add back the wait, notifyAll...
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-private fun Any.wait() = (this as java.lang.Object).wait()
+private fun Any.wait() = (this as Object).wait()
 
 
 
@@ -119,13 +119,13 @@ private class JavaVolatile {
 private class SynchronizedFunction {
   fun syncFun() = synchronized(this) {
     // wait()/notifyAll() are discouraged, but you still can call it:
-    (this as java.lang.Object).notifyAll()
+    (this as Object).notifyAll()
   }
 
   @Synchronized
   fun syncFun2() {
     // wait()/notifyAll() are discouraged, but you still can call it:
-    (this as java.lang.Object).notifyAll()
+    (this as Object).notifyAll()
   }
 
 }

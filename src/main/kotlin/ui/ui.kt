@@ -130,6 +130,9 @@ TODO KTML (Kotlin Text Markup Language)
     <div id='row2'><div> col 2 row 2 <div/></div>
   </div>
 </div>
+
+23) Использовать псевдоэлемент для настройки внутреннего элемента
+
 */
 
 

@@ -1,10 +1,11 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 
 val jacksonVer = "2.18.2"
 
 plugins {
-  val kotlinV = "2.1.0"
+  
+  val kotlinV = "2.1.21"
   
   
   kotlin("jvm") version kotlinV
@@ -18,9 +19,25 @@ plugins {
 }
 
 
-
 group = "com.rrain.testkotlin"
 version = "0.0.1"
+
+
+kotlin {
+  jvmToolchain(21)
+}
+
+application {
+  mainClass.set("MainKt")
+}
+
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.compilerOptions {
+  freeCompilerArgs.set(listOf(
+    "-Xmulti-dollar-interpolation", // enable experimental multi dollar interpolation: $$"aaa$aaa$$variable"
+  ))
+}
+
 
 repositories {
   mavenCentral()
@@ -104,26 +121,3 @@ dependencies {
 tasks.test {
   useJUnitPlatform()
 }
-
-kotlin {
-  jvmToolchain(21)
-}
-
-application {
-  mainClass.set("MainKt")
-}
-
-
-
-/*kotlin {
-  sourceSets.all {
-    languageSettings.apply {
-      languageVersion = "1.7"
-    }
-  }
-}*/
-/*
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-  languageVersion = "1.7"
-}*/
