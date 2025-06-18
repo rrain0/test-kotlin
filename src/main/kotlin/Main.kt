@@ -1,4 +1,3 @@
-import kotlin.math.pow
 import kotlin.system.measureTimeMillis
 import kotlin.time.TimeSource
 
@@ -6,18 +5,10 @@ import kotlin.time.TimeSource
 
 fun main(args: Array<String>) {
   
-  // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
   
-  val str = Regex("""a+""")
-  val regex = Regex("""b+$str""")
-  println(regex)
+  println(setOf("a", "b").containsAll(setOf()))
   
-  var p = 0.0
-  (1..60).forEach {
-    p += 0.955.pow(it-1) * if(it<60) 0.005 else 1.0
-  }
-  p /= 60.0
-  println("p: $p")
+  
   
   
   
@@ -60,7 +51,7 @@ val test_function_lambda = { 0 }
 
 
 
-private fun timeMeasurement(){
+private fun timeMeasurement() {
   val time = measureTimeMillis {
     repeat(10000) { println("AAA") }
   }
@@ -91,7 +82,7 @@ private fun uppercaseWords(str: String) = str
 
 
 
-enum class UnitType(val cssUnitString: String){
+enum class UnitType(val cssUnitString: String) {
   PX("px"), VH("vh"), /*....*/;
 }
 open class Unit(val type: UnitType, val value: Double){
