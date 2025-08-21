@@ -1,3 +1,4 @@
+import com.rrain.util.base.json.createJacksonJsonMapper
 import kotlin.system.measureTimeMillis
 import kotlin.time.TimeSource
 
@@ -5,8 +6,30 @@ import kotlin.time.TimeSource
 
 fun main(args: Array<String>) {
   
+  println(listOf<String>().any { it.isNotEmpty() })
   
-  println(setOf("a", "b").containsAll(setOf()))
+  
+  if (false) {
+    val jackson = createJacksonJsonMapper()
+    
+    println(measureTimeMillis {
+      repeat(1000000) {
+        val jsonString = jackson.writeValueAsString(object {
+          val id = "id"
+          val name = "name"
+        })
+      }
+    })
+    
+    println(measureTimeMillis {
+      repeat(1000000) {
+        val jsonString = jackson.writeValueAsString(mapOf(
+          "id" to "id",
+          "name" to "name",
+        ))
+      }
+    })
+  }
   
   
   

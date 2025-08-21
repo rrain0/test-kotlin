@@ -2,9 +2,9 @@ package ffmpeg
 
 
 fun main() {
-  //extractAudio()
+  extractAudio()
   //extractAudioToOgg320k()
-  extractAudioToMp320k()
+  //extractAudioToMp320k()
   
   //extractMeme()
   
@@ -17,8 +17,8 @@ fun main() {
 
 
 private fun extractAudio() {
-  val video = Input { path = """E:\ЗАГРУЗКИ\3e what du︎.mkv""" }
-  val output = Output { path = """E:\ЗАГРУЗКИ\CVllXXX - 3E WHAT DU.ogg""" }
+  val video = Input { path = """E:\ЗАГРУЗКИ\Papa Roach - BRAINDEAD (feat. Toby Morse) [OFFICIAL LYRIC VIDEO].mp4""" }
+  val output = Output { path = """E:\ЗАГРУЗКИ\Papa Roach - BRAINDEAD (feat. Toby Morse) [OFFICIAL LYRIC VIDEO].aac""" }
   val ffmpeg = ffmpeg {
     
     // audio

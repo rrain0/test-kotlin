@@ -11,7 +11,7 @@ import java.nio.file.Path
 
 
 
-data class Input private constructor(val path: Path){
+data class Input private constructor(val path: Path) {
   class BuilderConfig {
     var path: String = ""
   }
@@ -26,7 +26,7 @@ data class Input private constructor(val path: Path){
 }
 
 
-data class Output private constructor(val path: Path){
+data class Output private constructor(val path: Path) {
   class BuilderConfig {
     var path: String = ""
   }

@@ -1,11 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
-val jacksonVer = "2.18.2"
 
 plugins {
   
-  val kotlinV = "2.1.21"
+  val kotlinV = "2.2.10"
   
   
   kotlin("jvm") version kotlinV
@@ -28,14 +27,12 @@ kotlin {
 }
 
 application {
-  mainClass.set("MainKt")
+  mainClass = "MainKt"
 }
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.compilerOptions {
-  freeCompilerArgs.set(listOf(
-    "-Xmulti-dollar-interpolation", // enable experimental multi dollar interpolation: $$"aaa$aaa$$variable"
-  ))
+  freeCompilerArgs.add("-Xcontext-parameters") // enable experimental context parameters
 }
 
 
@@ -86,13 +83,14 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
   
   
-  implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVer")
+  val jacksonV = "2.18.2"
+  implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonV")
   // Kotlin Jackson Support
   // https://github.com/FasterXML/jackson-module-kotlin
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVer")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonV")
   // Java Time Jackson Support
   // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVer")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonV")
   
   
 
