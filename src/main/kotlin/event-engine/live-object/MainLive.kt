@@ -16,7 +16,6 @@ import kotlin.time.Duration.Companion.days
 
 fun main() {
   liveObject()
-  val (int, str) = run { listOf(1, "s") }
 }
 
 
@@ -26,25 +25,38 @@ fun liveObject() = runBlocking(Executors.newCachedThreadPool().asCoroutineDispat
   val expiresAt = now() + 10.days
   
   launch {
-    SessionData(id, expiresAt, userId, now(), true).let {
+    SessionData(id, expiresAt, userId, onlineAt = now(), online = true).let {
       println("addOrUpdateSession: $it")
       LiveSession.addOrUpdateSession(it)
     }
     
     delay(1000)
-    SessionData(id, expiresAt, userId, now(), true).let {
+    SessionData(id, expiresAt, userId, onlineAt = now(), online = true).let {
       println("addOrUpdateSession: $it")
       LiveSession.addOrUpdateSession(it)
     }
     
     delay(2000)
-    SessionData(id, expiresAt, userId, online = false).let {
+    // Здесь мы сообщаем, что перестали быть онлайн в момент onlineAt
+    SessionData(id, expiresAt, userId, onlineAt = now(), online = false).let {
       println("addOrUpdateSession: $it")
       LiveSession.addOrUpdateSession(it)
     }
     
     delay(1000)
-    SessionData(id, expiresAt, userId, now(), true).let {
+    SessionData(id, expiresAt, userId, onlineAt = now(), online = true).let {
+      println("addOrUpdateSession: $it")
+      LiveSession.addOrUpdateSession(it)
+    }
+    
+    delay(1000)
+    // Здесь мы сообщаем, что перестали быть онлайн.
+    // В какой момент - неизвестно, так что onlineAt не передаём.
+    println("removeSession: $id")
+    LiveSession.removeSession(id)
+    
+    delay(1000)
+    SessionData(id, expiresAt, userId, onlineAt = now(), online = true).let {
       println("addOrUpdateSession: $it")
       LiveSession.addOrUpdateSession(it)
     }

@@ -4,19 +4,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.datetime.Instant
 import java.util.UUID
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.concurrent.Volatile
 
 
 
 
 typealias UserId = UUID
 typealias SessionId = UUID
-
-
-
-
 data class SessionData(
   val id: SessionId,
   val expiresAt: Instant,
@@ -38,6 +31,7 @@ val sessionOnlineUpdateEvents = sessionOnlineUpdateFlow.asSharedFlow()
 
 
 
+// ℹ️ℹ️ℹ️ По идее onlineAt ещё должен сохраняться в какое-то постоянное хранилище (БД)
 object LiveSession {
   // No need volatile because access is always synchronized.
   /*
@@ -67,7 +61,9 @@ object LiveSession {
         onlineAt = null,
         online = false,
       )
-      val next = upd.let { it.copy(onlineAt = if (it.online) it.onlineAt else curr.onlineAt) }
+      val next = upd.let {
+        it.copy(onlineAt = it.onlineAt ?: curr.onlineAt)
+      }
       sessionData = next
       curr to next
     }
@@ -82,7 +78,7 @@ object LiveSession {
         id = curr.id,
         expiresAt = curr.expiresAt,
         userId = curr.userId,
-        onlineAt = null,
+        onlineAt = curr.onlineAt,
         online = false,
       )
       sessionData = null
@@ -98,10 +94,14 @@ object LiveSession {
 private suspend fun emitSessionUpdate(curr: SessionData, next: SessionData) {
   var onlineChange = false
   
+  // Изменился сам статус онлайн.
   if (curr.online != next.online) {
     onlineChange = true
   }
-  else if (next.online && curr.onlineAt != next.onlineAt) {
+  // Если статус онлайн не изменился:
+  // Если мы остались онлайн, то изменение onlineAt не имеет значения, потому что в UI мы показываем online.
+  // Если мы остались оффлайн, то изменение onlineAt имеет значение и именно его мы показываем в UI.
+  else if (!next.online && curr.onlineAt != next.onlineAt) {
     onlineChange = true
   }
   
