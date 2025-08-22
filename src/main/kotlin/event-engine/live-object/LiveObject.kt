@@ -31,7 +31,11 @@ val sessionOnlineUpdateEvents = sessionOnlineUpdateFlow.asSharedFlow()
 
 
 
-// ℹ️ℹ️ℹ️ По идее onlineAt ещё должен сохраняться в какое-то постоянное хранилище (БД)
+// ℹ️ℹ️ℹ️ По идее onlineAt ещё должен сохраняться в какое-то постоянное асинхронное хранилище (БД)
+object StoredSession {
+
+}
+
 object LiveSession {
   // No need volatile because access is always synchronized.
   /*
