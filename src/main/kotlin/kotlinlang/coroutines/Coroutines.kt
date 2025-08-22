@@ -76,15 +76,16 @@ fun main() {
             withContext(Dispatchers.IO)
         ● Returns usual result of block execution.
 
-    ● launch { }:
+    ● launch { } -> Job:
         launch is a coroutine builder.
         It launches a new coroutine concurrently with the rest of the code,
         which continues to work independently.
-        ● Returns Job.
+    ● launch(start = CoroutineStart.UNDISPATCHED) { } -> Job:
+        executes immediately in current thread until first suspension point
+        even if coroutine was already cancelled.
 
-    ● async { }:
+    ● async { } -> Deferred:
         it is like launch { }, but returns result value.
-        ● Returns Deferred.
 
     ● delay(<time millis>):
         is a special suspending function. It suspends the coroutine for a specific time.
@@ -101,7 +102,7 @@ fun main() {
 
     ● suspendCancellableCoroutine { cancellableContinuation -> ... }
 
-    ● Channels for communication between coroutines
+    ● Channels - for communication between coroutines
         A Channel is conceptually very similar to BlockingQueue.
         One key difference is that
         instead of a blocking 'put' operation it has a suspending 'send',
@@ -117,7 +118,7 @@ fun main() {
         A shared flow is called HOT because its
         active instance exists independently of the presence of collectors.
 
-    ● Mutex (instead of ReentrantLock in sync world)
+    ● Mutex - instead of ReentrantLock in sync world
     ● Semaphore
  */
 
