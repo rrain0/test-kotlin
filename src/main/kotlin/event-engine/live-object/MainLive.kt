@@ -25,47 +25,46 @@ fun liveObject() = runBlocking(Executors.newCachedThreadPool().asCoroutineDispat
   val expiresAt = now() + 10.days
   
   launch {
+    delay(1000)
     SessionData(id, expiresAt, userId, onlineAt = now(), online = true).let {
       println("addOrUpdateSession: $it")
-      LiveSession.addOrUpdateSession(it)
+      LiveSession.addOrUpdate(it)
     }
     
     delay(1000)
     SessionData(id, expiresAt, userId, onlineAt = now(), online = true).let {
       println("addOrUpdateSession: $it")
-      LiveSession.addOrUpdateSession(it)
+      LiveSession.addOrUpdate(it)
     }
     
     delay(2000)
     // Здесь мы сообщаем, что перестали быть онлайн в момент onlineAt
     SessionData(id, expiresAt, userId, onlineAt = now(), online = false).let {
       println("addOrUpdateSession: $it")
-      LiveSession.addOrUpdateSession(it)
+      LiveSession.addOrUpdate(it)
     }
     
     delay(1000)
     SessionData(id, expiresAt, userId, onlineAt = now(), online = true).let {
       println("addOrUpdateSession: $it")
-      LiveSession.addOrUpdateSession(it)
+      LiveSession.addOrUpdate(it)
     }
     
     delay(1000)
     // Здесь мы сообщаем, что перестали быть онлайн.
     // В какой момент - неизвестно, так что onlineAt не передаём.
     println("removeSession: $id")
-    LiveSession.removeSession(id)
+    LiveSession.remove(id)
     
     delay(1000)
     SessionData(id, expiresAt, userId, onlineAt = now(), online = true).let {
       println("addOrUpdateSession: $it")
-      LiveSession.addOrUpdateSession(it)
+      LiveSession.addOrUpdate(it)
     }
   }
   
   
   launch {
-    delay(100)
-    
     val cnt = AtomicInteger(0)
     
     // launch(start = CoroutineStart.UNDISPATCHED) { } -> Job:
@@ -80,7 +79,7 @@ fun liveObject() = runBlocking(Executors.newCachedThreadPool().asCoroutineDispat
     }
     
     // In any case get current state, and then it will be updated via SharedFlow.
-    println("onSessionOnlineUpdate[0][${cnt.getAndIncrement()}]: ${LiveSession.getSession(id)}")
+    println("onSessionOnlineUpdate[0][${cnt.getAndIncrement()}]: ${LiveSession.get(id)}")
   }
   
   launch {
@@ -93,7 +92,7 @@ fun liveObject() = runBlocking(Executors.newCachedThreadPool().asCoroutineDispat
       }
     }
     
-    println("onSessionOnlineUpdate[1][${cnt.getAndIncrement()}]: ${LiveSession.getSession(id)}")
+    println("onSessionOnlineUpdate[1][${cnt.getAndIncrement()}]: ${LiveSession.get(id)}")
   }
 }
 

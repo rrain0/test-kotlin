@@ -1,7 +1,10 @@
 package `event-engine`.`live-object`
 
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import java.util.UUID
 
@@ -10,6 +13,7 @@ import java.util.UUID
 
 typealias UserId = UUID
 typealias SessionId = UUID
+
 data class SessionData(
   val id: SessionId,
   val expiresAt: Instant,
@@ -18,23 +22,20 @@ data class SessionData(
   val online: Boolean = false,
 )
 
-
-
+// Сессии онлайн, хранятся в оперативке.
+// Сессии оффлайн будут в БД. Или не будут, если о них ещё нет данных
+data class StoredSessionData(
+  val id: SessionId,
+  val expiresAt: Instant,
+  val userId: UserId? = null,
+  val onlineAt: Instant? = null,
+)
 
 interface SessionEv
 data class SessionOnlineEv(val data: SessionData) : SessionEv
 
 
-// Flow to push updates
-private val sessionOnlineUpdateFlow = MutableSharedFlow<SessionOnlineEv>()
-val sessionOnlineUpdateEvents = sessionOnlineUpdateFlow.asSharedFlow()
 
-
-
-// ℹ️ℹ️ℹ️ По идее onlineAt ещё должен сохраняться в какое-то постоянное асинхронное хранилище (БД)
-object StoredSession {
-
-}
 
 object LiveSession {
   // No need volatile because access is always synchronized.
@@ -50,15 +51,51 @@ object LiveSession {
   when a thread enters a synchronized block or method, it performs a "read barrier",
   which invalidates its local cache and forces it to read the latest values from main memory.
    */
-  private var sessionData: SessionData? = null
+  private var data: SessionData? = null
   
-  fun getSession(id: SessionId): SessionData? = synchronized(this) {
-    sessionData?.takeIf { it.id == id }
+  suspend fun get(id: SessionId): SessionData? {
+    val curr = synchronized(this) {
+      data?.takeIf { it.id == id }
+    }
+    if (curr == null) {
+      coroutineScope { launch {
+        val stored = StoredSession.get(id)?.let { SessionData(
+          id = it.id,
+          expiresAt = it.expiresAt,
+          userId = it.userId,
+          onlineAt = it.onlineAt,
+          online = false,
+        ) }
+        if (stored != null) add(stored)
+      } }
+    }
+    return curr
   }
   
-  suspend fun addOrUpdateSession(upd: SessionData) {
+  suspend fun add(upd: SessionData) {
     val (curr, next) = synchronized(this) {
-      val curr = sessionData?.takeIf { it.id == upd.id } ?: SessionData(
+      val curr = data
+      val next = upd
+      if (curr != null) return
+      run {
+        data = next
+        val curr = SessionData(
+          id = upd.id,
+          expiresAt = upd.expiresAt,
+          userId = upd.userId,
+          onlineAt = null,
+          online = false,
+        )
+        curr to next
+      }
+    }
+    
+    emitSessionUpdate(curr, next)
+  }
+  
+  suspend fun addOrUpdate(upd: SessionData) {
+    val (curr, next) = synchronized(this) {
+      val curr = data?.takeIf { it.id == upd.id } ?: SessionData(
         id = upd.id,
         expiresAt = upd.expiresAt,
         userId = upd.userId,
@@ -68,16 +105,17 @@ object LiveSession {
       val next = upd.let {
         it.copy(onlineAt = it.onlineAt ?: curr.onlineAt)
       }
-      sessionData = next
+      data = next
       curr to next
     }
     
     emitSessionUpdate(curr, next)
   }
   
-  suspend fun removeSession(id: SessionId) {
+  suspend fun remove(id: SessionId) {
     val (curr, next) = synchronized(this) {
-      val curr = sessionData?.takeIf { it.id == id } ?: return
+      val curr = data?.takeIf { it.id == id } ?: return
+      data = null
       val next = SessionData(
         id = curr.id,
         expiresAt = curr.expiresAt,
@@ -85,15 +123,26 @@ object LiveSession {
         onlineAt = curr.onlineAt,
         online = false,
       )
-      sessionData = null
       curr to next
     }
     
+    coroutineScope { launch {
+      StoredSession.addOrUpdate(StoredSessionData(
+        id = next.id,
+        expiresAt = next.expiresAt,
+        userId = next.userId,
+        onlineAt = next.onlineAt,
+      ))
+    } }
     emitSessionUpdate(curr, next)
   }
 }
 
 
+
+// Flow to push updates
+private val sessionOnlineUpdateFlow = MutableSharedFlow<SessionOnlineEv>()
+val sessionOnlineUpdateEvents = sessionOnlineUpdateFlow.asSharedFlow()
 
 private suspend fun emitSessionUpdate(curr: SessionData, next: SessionData) {
   var onlineChange = false
@@ -111,5 +160,44 @@ private suspend fun emitSessionUpdate(curr: SessionData, next: SessionData) {
   
   if (onlineChange) {
     sessionOnlineUpdateFlow.emit(SessionOnlineEv(next))
+  }
+}
+
+
+
+
+
+object StoredSession {
+  private var storedData: StoredSessionData? = null
+  
+  suspend fun get(id: SessionId): StoredSessionData? {
+    delay(1234)
+    synchronized(this) {
+      return storedData?.takeIf { it.id == id }
+    }
+  }
+  
+  suspend fun addOrUpdate(upd: StoredSessionData) {
+    delay(1234)
+    synchronized(this) {
+      val curr = storedData?.takeIf { it.id == upd.id } ?: StoredSessionData(
+        id = upd.id,
+        expiresAt = upd.expiresAt,
+        userId = upd.userId,
+        onlineAt = null,
+      )
+      val next = upd.let {
+        it.copy(onlineAt = it.onlineAt ?: curr.onlineAt)
+      }
+      storedData = next
+    }
+  }
+  
+  suspend fun remove(id: SessionId) {
+    delay(1234)
+    synchronized(this) {
+      storedData?.takeIf { it.id == id } ?: return
+      storedData = null
+    }
   }
 }

@@ -47,12 +47,17 @@ dependencies {
 
   // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+  
+  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-datetime
+  implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
 
   // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
   // https://github.com/Kotlin/kotlinx.serialization
   // JSON serialization
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1")
 
+  
+  
   // https://central.sonatype.com/artifact/io.github.xn32/json5k
   // https://github.com/xn32/json5k
   // Дополнение стандарта JSON5
@@ -77,10 +82,6 @@ dependencies {
   implementation("io.jsonwebtoken:jjwt-api:0.12.6")
   
   implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
-  
-  
-  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-datetime
-  implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
   
   
   val jacksonV = "2.18.2"
