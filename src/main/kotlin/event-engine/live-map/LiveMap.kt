@@ -1,14 +1,16 @@
-package `event-engine`.`live-object`
+package `event-engine`.`live-map`
 
+import com.google.common.collect.TreeMultimap
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import java.util.Collections
 import java.util.TreeSet
 import java.util.UUID
+import kotlin.compareTo
+import kotlin.time.Duration.Companion.minutes
 
 
 
@@ -160,6 +162,29 @@ private object SessionOnlineInner {
 
 object SessionOnline {
   val events by SessionOnlineInner::events
+}
+
+
+
+data class StalenessSessionData(
+  val id: SessionId,
+  val expiresAt: Instant,
+  val accessedAt: Instant,
+) {
+  val staleAt = minOf(accessedAt + 3.minutes, expiresAt)
+  companion object {
+    val identityComparator = Comparator<StalenessSessionData> { a, b -> a.id compareTo b.id }
+    val stalenessComparator = Comparator<StalenessSessionData> { a, b -> a.staleAt compareTo b.staleAt }
+  }
+}
+
+object StaleSessions {
+  private val sortedMap = TreeMultimap.create<StalenessSessionData, StalenessSessionData>(
+    StalenessSessionData.stalenessComparator,
+    StalenessSessionData.identityComparator,
+  )
+  
+  
 }
 
 

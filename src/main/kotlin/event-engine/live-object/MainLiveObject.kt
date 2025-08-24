@@ -73,7 +73,7 @@ fun liveObject() = runBlocking(Executors.newCachedThreadPool().asCoroutineDispat
     launch(start = CoroutineStart.UNDISPATCHED) {
       
       // sharedFlow.collect guarantees to subscribe immediately and to be ready to receive emissions.
-      sessionOnlineUpdateEvents.collect {
+      SessionOnline.events.collect {
         println("onSessionOnlineUpdate[0][${cnt.getAndIncrement()}]: $it")
       }
     }
@@ -87,7 +87,7 @@ fun liveObject() = runBlocking(Executors.newCachedThreadPool().asCoroutineDispat
     
     val cnt = AtomicInteger(0)
     launch(start = CoroutineStart.UNDISPATCHED) {
-      sessionOnlineUpdateEvents.collect {
+      SessionOnline.events.collect {
         println("onSessionOnlineUpdate[1][${cnt.getAndIncrement()}]: $it")
       }
     }

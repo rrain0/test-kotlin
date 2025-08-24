@@ -91,6 +91,8 @@ fun main() {
         is a special suspending function. It suspends the coroutine for a specific time.
         Suspending a coroutine does not block the underlying thread,
         but allows other coroutines to run and use the underlying thread for their code.
+        
+    ● awaitCancellation() - delay forever
 
     ● suspendCoroutine { continuation -> ... }
         Используется, чтобы превратить апи с коллбэками в suspend functions

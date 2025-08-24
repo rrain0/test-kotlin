@@ -57,6 +57,11 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1")
 
   
+  // Guava collections
+  // https://mvnrepository.com/artifact/com.google.guava/guava
+  implementation("com.google.guava:guava:33.4.8-jre")
+  
+  
   
   // https://central.sonatype.com/artifact/io.github.xn32/json5k
   // https://github.com/xn32/json5k

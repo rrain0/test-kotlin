@@ -7,6 +7,7 @@ import com.rrain.util.base.number.mapZero
 data class Point2(val x: Double, val y: Double) : Comparable<Point2> {
 
   // Need for range creation
+  // And this overrides > >= < <= operators
   override fun compareTo(other: Point2) = compareByXY(other)
 
   // сравнить сначала по X потом по Y
@@ -17,15 +18,11 @@ data class Point2(val x: Double, val y: Double) : Comparable<Point2> {
     x < other.x -> -1
     else -> 0
   }
-  fun compareByY(other: Point2): Int = when {
-    y > other.y -> 1
-    y < other.y -> -1
-    else -> 0
-  }
+  fun compareByY(other: Point2) = y compareTo other.y
 
   operator fun minus(b: Point2) = Point2(x - b.x, y - b.y)
   operator fun plus(b: Point2) = Point2(x + b.x, y + b.y)
-  // Need to range creation
+  // Need for range creation
   operator fun rangeTo(other: Point2) = Point2IteratorAndRange(this,other)
 
   companion object {
