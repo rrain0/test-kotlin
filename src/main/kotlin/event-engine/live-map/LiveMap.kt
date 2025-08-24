@@ -31,7 +31,7 @@ data class SessionData(
 )
 
 object LiveSession {
-  private var data: MutableMap<SessionId, SessionData> = mutableMapOf()
+  private val data: MutableMap<SessionId, SessionData> = mutableMapOf()
   
   suspend fun get(id: SessionId): SessionData? {
     val curr = synchronized(this) { data[id] }
@@ -171,6 +171,7 @@ data class SessionUsageData(
   }
 }
 
+// TODO
 object SessionUsage {
   private val sortedMap = SessionUsageData.run {
     TreeMultimap.create(stalenessComparator, identityComparator)
@@ -196,19 +197,17 @@ data class StoredSessionData(
 )
 
 object StoredSession {
-  private var storedData: StoredSessionData? = null
+  private val storedData: MutableMap<SessionId, StoredSessionData> = mutableMapOf()
   
   suspend fun get(id: SessionId): StoredSessionData? {
     delay(1234) // emulate async delay
-    synchronized(this) {
-      return storedData?.takeIf { it.id == id }
-    }
+    return synchronized(this) { storedData[id] }
   }
   
   suspend fun addOrUpdate(upd: StoredSessionData) {
     delay(1234) // emulate async delay
     synchronized(this) {
-      val curr = storedData?.takeIf { it.id == upd.id } ?: StoredSessionData(
+      val curr = storedData[upd.id] ?: StoredSessionData(
         id = upd.id,
         expiresAt = upd.expiresAt,
         userId = upd.userId,
@@ -217,15 +216,14 @@ object StoredSession {
       val next = upd.let {
         it.copy(onlineAt = it.onlineAt ?: curr.onlineAt)
       }
-      storedData = next
+      storedData[upd.id] = next
     }
   }
   
   suspend fun remove(id: SessionId) {
     delay(1234) // emulate async delay
     synchronized(this) {
-      storedData?.takeIf { it.id == id } ?: return
-      storedData = null
+      storedData.remove(id)
     }
   }
 }
