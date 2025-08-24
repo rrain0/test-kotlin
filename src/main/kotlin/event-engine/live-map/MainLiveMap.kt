@@ -19,7 +19,7 @@ fun main() {
 }
 
 
-fun liveObject() = runBlocking(Executors.newCachedThreadPool().asCoroutineDispatcher()) {
+fun liveObject() = Executors.newCachedThreadPool().use { runBlocking(it.asCoroutineDispatcher()) {
   val id = randomUuid()
   val userId = randomUuid()
   val expiresAt = now() + 10.days
@@ -94,5 +94,5 @@ fun liveObject() = runBlocking(Executors.newCachedThreadPool().asCoroutineDispat
     
     println("onSessionOnlineUpdate[1][${cnt.getAndIncrement()}]: ${LiveSession.get(id)}")
   }
-}
+} }
 

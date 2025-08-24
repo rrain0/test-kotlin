@@ -1,6 +1,6 @@
 package geometry
 
-import com.rrain.util.base.number.mapZero
+import com.rrain.util.base.number.ifZero
 
 
 
@@ -11,7 +11,7 @@ data class Point2(val x: Double, val y: Double) : Comparable<Point2> {
   override fun compareTo(other: Point2) = compareByXY(other)
 
   // сравнить сначала по X потом по Y
-  fun compareByXY(other: Point2): Int = compareByX(other).mapZero { compareByY(other) }
+  fun compareByXY(other: Point2): Int = compareByX(other).ifZero { compareByY(other) }
 
   fun compareByX(other: Point2): Int = when {
     x > other.x -> 1

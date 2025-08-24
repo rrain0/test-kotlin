@@ -53,76 +53,138 @@ fun main() {
 }
 
 
-
-// A coroutine is an instance of suspendable computation.
-// Coroutines do not create separate thread
+/*
+  A coroutine is an instance of suspendable computation.
+  Coroutines do not create separate thread, they use threads from context.
+  Thread switching happens at suspension points.
+  Suspension point - call of suspending function.
+ */
 
 /*
-    ● runBlocking { }:
-        The name of runBlocking means that the thread that runs it
-        gets blocked for the duration of the call,
-        until all the coroutines inside runBlocking { ... } complete their execution.
-
-    ● coroutineScope { }:
-        waits for all nested coroutines complete then completes itself.
-        unlike runBlocking - does not block the thread, only suspends it.
-        Например если coroutineScope { launch { ... } }, то coroutineScope не завершится,
-        пока job из этого launch не завершится.
-
-    ● withContext(context) { }:
-        Calls the specified suspending block with a given coroutine context,
-        suspends until it completes, and returns the result.
-            withContext(NonCancelable)
-            withContext(Dispatchers.IO)
-        ● Returns usual result of block execution.
-
-    ● launch { } -> Job:
-        launch is a coroutine builder.
-        It launches a new coroutine concurrently with the rest of the code,
-        which continues to work independently.
-    ● launch(start = CoroutineStart.UNDISPATCHED) { } -> Job:
-        executes immediately in current thread until first suspension point
-        even if coroutine was already cancelled.
-
-    ● async { } -> Deferred:
-        it is like launch { }, but returns result value.
-
-    ● delay(<time millis>):
-        is a special suspending function. It suspends the coroutine for a specific time.
-        Suspending a coroutine does not block the underlying thread,
-        but allows other coroutines to run and use the underlying thread for their code.
-        
-    ● awaitCancellation() - delay forever
-
-    ● suspendCoroutine { continuation -> ... }
-        Используется, чтобы превратить апи с коллбэками в suspend functions
-        suspend fun getUser(id: String): User  = suspendCoroutine { continuation ->
-            Api.getUser(id) { user ->
-                continuation.resume(user)
-            }
-        }
-
-    ● suspendCancellableCoroutine { cancellableContinuation -> ... }
-
-    ● Channels - for communication between coroutines
-        A Channel is conceptually very similar to BlockingQueue.
-        One key difference is that
-        instead of a blocking 'put' operation it has a suspending 'send',
-        and instead of a blocking 'take' operation it has a suspending 'receive'.
-
-    ● Flows
-        A regular Flow, such as defined by the flow { ... } function,
-        which is COLD and is started separately for each collector.
-
-    ● Shared Flows - broadcasting data to several receiver-coroutines.
-        A hotFlow that shares emitted values among all its collectors in a broadcast fashion,
-        so that all collectors get all emitted values.
-        A shared flow is called HOT because its
-        active instance exists independently of the presence of collectors.
-
-    ● Mutex - instead of ReentrantLock in sync world
-    ● Semaphore
+  ● 1 фиксированный поток:
+    val context = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    val context = newSingleThreadContext("name")
+  ● N фиксированных потоков:
+    val context = Executors.newFixedThreadPool(N).asCoroutineDispatcher()
+    val context = newFixedThreadPoolContext(N, "name")
+  ● Потоки создаются по требованию:
+    val context = Executors.newCachedThreadPool().asCoroutineDispatcher()
+  
+  ● runBlocking(context) { }
+  ● launch(context) { }
+  ● async(context)
+  ● withContext(context)
+  
+  ⚠️ Note that you need to manually stop thread pool:
+  Executors.newCachedThreadPool().use { runBlocking(it.asCoroutineDispatcher()) { ... } }
+  
+  You can change execution context on the fly, but need to avoid concurrent modification errors.
  */
+
+/*
+  ● @Synchronized fun f() { }
+  ● synchronized(this) { }
+    Only 1 thread can be inside synchronized { } at a time.
+    Before synchronized { }, thread updates its local cache from main memory.
+    After synchronized { }, thread pushes updates from local cache to main memory.
+  
+  ● Mutex - allow only a single coroutine at a time to hold lock.
+    Next coroutines that called mutex.lock() will wait until lock is released.
+    Threads may be switched inside while mutex locked.
+    ⚠️ Mutex is not reentrant: if you call mutex.lock() twice
+    within single coroutine - you'll be deadlocked.
+    ⚠️ Mutex allows to spam multiple coroutines inside and
+    they don't wait for the lock and can run concurrently.
+    
+    ✅ The suspensions and resumptions of coroutines establish the "happens-before" guarantee.
+    So the coroutine can be executed by multiple threads,
+    and no stale values will be read in the coroutine.
+    "Happens-before" guarantee - if one action happens-before another,
+    the effects of the first action are guaranteed to be visible to the second action.
+    
+    ℹ️ JVM API note: Memory semantic of the Mutex is similar to synchronized block on JVM:
+    An unlock operation on a Mutex happens-before every subsequent successful lock on that Mutex.
+    Unsuccessful call to tryLock do not have any memory effects.
+    https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.sync/-mutex/
+    
+  ● Semaphore
+*/
+
+/*
+  Cancellation.
+  ● Suspending functions in kotlinx.coroutines.
+    All the suspending functions in kotlinx.coroutines are cancellable.
+    They check for cancellation of coroutine and throw CancellationException when cancelled.
+    They check if scope cancelled on its call.
+  ● You must check <CoroutineScope>.isActive to determine if scope was cancelled
+    before and inside heavy computations to avoid useless CPU load.
+    launch { while(isActive) { ... } }
+ */
+
+/*
+  ● runBlocking { }:
+      The name of runBlocking means that the thread that runs it
+      gets blocked for the duration of the call,
+      until all the coroutines inside runBlocking { ... } complete their execution.
+
+  ● coroutineScope { }:
+      waits for all nested coroutines complete then completes itself.
+      unlike runBlocking - does not block the thread, only suspends it.
+      Например если coroutineScope { launch { ... } }, то coroutineScope не завершится,
+      пока job из этого launch не завершится.
+
+  ● withContext(context) { } -> block result:
+      Calls the specified suspending block with a given coroutine context,
+      suspends until it completes, and returns the result.
+          withContext(NonCancelable)
+          withContext(Dispatchers.IO)
+
+  ● launch { } -> Job:
+      launch is a coroutine builder.
+      It launches a new coroutine concurrently with the rest of the code,
+      which continues to work independently.
+  ● launch(start = CoroutineStart.UNDISPATCHED) { } -> Job:
+      executes immediately in current thread until first suspension point
+      even if coroutine was already cancelled.
+
+  ● async { } -> Deferred:
+      it is like launch { }, but returns result value.
+
+  ● delay(<time millis>):
+      is a special suspending function. It suspends the coroutine for a specific time.
+      Suspending a coroutine does not block the underlying thread,
+      but allows other coroutines to run and use the underlying thread for their code.
+      
+  ● awaitCancellation() - delay forever
+
+  ● suspendCoroutine { continuation -> ... }
+      Используется, чтобы превратить апи с коллбэками в suspend functions
+      suspend fun getUser(id: String): User  = suspendCoroutine { continuation ->
+          Api.getUser(id) { user ->
+              continuation.resume(user)
+          }
+      }
+
+  ● suspendCancellableCoroutine { cancellableContinuation -> ... }
+ */
+
+/*
+  ● Channels - for communication between coroutines
+      A Channel is conceptually very similar to BlockingQueue.
+      One key difference is that
+      instead of a blocking 'put' operation it has a suspending 'send',
+      and instead of a blocking 'take' operation it has a suspending 'receive'.
+
+  ● Flows
+      A regular Flow, such as defined by the flow { ... } function,
+      which is COLD and is started separately for each collector.
+
+  ● Shared Flows - broadcasting data to several receiver-coroutines.
+      A hotFlow that shares emitted values among all its collectors in a broadcast fashion,
+      so that all collectors get all emitted values.
+      A shared flow is called HOT because its
+      active instance exists independently of the presence of collectors.
+*/
 
 
 
@@ -548,7 +610,7 @@ suspend fun AsynchronousFileChannel.readAsync(buf: ByteBuffer, start: Long = 0L)
 private object CoroutineDispatchers {
   
   // Диспетчер корутины - пул потоков для её выполнения
-  suspend fun coroutineDispatchers() = coroutineScope{
+  suspend fun coroutineDispatchers() = coroutineScope {
     /*
     ● Dispatchers.Default: CPU-intensive tasks.
     Применяется по умолчанию, если тип диспетчера не указан явным образом.
@@ -568,7 +630,10 @@ private object CoroutineDispatchers {
     После возобновления работы корутина продолжает работу в одном из потоков, который сторого не фиксирован.
     Разработчики языка Kotlin в обычной ситуации не рекомендуют использовать данный тип.
 
-    ● newSingleThreadContext и ● newFixedThreadPoolContext: позволяют вручную задать поток/пул для выполнения корутины
+    ● newSingleThreadContext - 1 фиксированный поток
+    ● newFixedThreadPoolContext - N фиксированных потоков
+    ● Executors.newCachedThreadPool().asCoroutineDispatcher() - Потоки создаются по требованию
+      Позволяют вручную задать поток/пул для выполнения корутины
      */
     
     launch(Dispatchers.Default) { }
@@ -591,8 +656,6 @@ private object CoroutineDispatchers {
     
   }
 }
-
-
 
 
 

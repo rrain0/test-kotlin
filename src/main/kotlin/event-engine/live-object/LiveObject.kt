@@ -6,8 +6,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import java.util.Collections
-import java.util.TreeSet
 import java.util.UUID
 
 
@@ -22,7 +20,6 @@ typealias SessionId = UUID
 
 data class SessionData(
   val id: SessionId,
-  //val accessedAt: Instant,
   val expiresAt: Instant,
   val userId: UserId? = null,
   val onlineAt: Instant? = null,
@@ -46,19 +43,18 @@ object LiveSession {
   private var data: SessionData? = null
   
   suspend fun get(id: SessionId): SessionData? {
-    val curr = synchronized(this) {
-      data?.takeIf { it.id == id }
-    }
+    val curr = synchronized(this) { data }?.takeIf { it.id == id }
     if (curr == null) {
       coroutineScope { launch {
-        val stored = StoredSession.get(id)?.let { SessionData(
-          id = it.id,
-          expiresAt = it.expiresAt,
-          userId = it.userId,
-          onlineAt = it.onlineAt,
-          online = false,
-        ) }
-        if (stored != null) add(stored)
+        StoredSession.get(id)
+          ?.let { SessionData(
+            id = it.id,
+            expiresAt = it.expiresAt,
+            userId = it.userId,
+            onlineAt = it.onlineAt,
+            online = false,
+          ) }
+          ?.let { stored -> add(stored) }
       } }
     }
     return curr
@@ -68,7 +64,7 @@ object LiveSession {
     val (curr, next) = synchronized(this) {
       val curr = data
       val next = upd
-      if (curr != null) return
+      if (curr?.id == upd.id) return
       run {
         data = next
         val curr = SessionData(

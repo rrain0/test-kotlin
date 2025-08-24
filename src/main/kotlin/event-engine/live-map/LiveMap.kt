@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import java.util.TreeSet
 import java.util.UUID
 import kotlin.compareTo
 import kotlin.time.Duration.Companion.minutes
@@ -32,47 +31,37 @@ data class SessionData(
 )
 
 object LiveSession {
-  // No need volatile because access is always synchronized.
-  /*
-  The synchronized keyword provides both atomicity and visibility guarantees.
-  When a thread enters a synchronized method, it acquires a lock on the object.
-  This ensures that only one thread can execute that method
-  (or any other synchronized method on the same object) at a time,
-  guaranteeing atomicity for operations within the method. Crucially,
-  when a thread exits a synchronized block or method, it performs a "write barrier",
-  which flushes all changes made by that thread to main memory,
-  making them visible to other threads. Conversely,
-  when a thread enters a synchronized block or method, it performs a "read barrier",
-  which invalidates its local cache and forces it to read the latest values from main memory.
-   */
-  private var data: SessionData? = null
+  private var data: MutableMap<SessionId, SessionData> = mutableMapOf()
   
   suspend fun get(id: SessionId): SessionData? {
-    val curr = synchronized(this) {
-      data?.takeIf { it.id == id }
-    }
+    val curr = synchronized(this) { data[id] }
     if (curr == null) {
       coroutineScope { launch {
-        val stored = StoredSession.get(id)?.let { SessionData(
-          id = it.id,
-          expiresAt = it.expiresAt,
-          userId = it.userId,
-          onlineAt = it.onlineAt,
-          online = false,
-        ) }
-        if (stored != null) add(stored)
+        StoredSession.get(id)
+          ?.let { SessionData(
+            id = it.id,
+            expiresAt = it.expiresAt,
+            userId = it.userId,
+            onlineAt = it.onlineAt,
+            online = false,
+          ) }
+          ?.let { stored -> add(stored) }
       } }
+    }
+    if (curr != null) {
+      // TODO Push access event to cache
     }
     return curr
   }
   
+  // add if not exists by id
   suspend fun add(upd: SessionData) {
     val (curr, next) = synchronized(this) {
-      val curr = data
+      val curr = data[upd.id]
       val next = upd
-      if (curr != null) return
+      curr ?: return
       run {
-        data = next
+        data[upd.id] = next
         val curr = SessionData(
           id = upd.id,
           expiresAt = upd.expiresAt,
@@ -84,12 +73,14 @@ object LiveSession {
       }
     }
     
+    // TODO Push access event to cache
+    
     SessionOnlineInner.tryEmit(curr, next)
   }
   
   suspend fun addOrUpdate(upd: SessionData) {
     val (curr, next) = synchronized(this) {
-      val curr = data?.takeIf { it.id == upd.id } ?: SessionData(
+      val curr = data[upd.id] ?: SessionData(
         id = upd.id,
         expiresAt = upd.expiresAt,
         userId = upd.userId,
@@ -99,7 +90,7 @@ object LiveSession {
       val next = upd.let {
         it.copy(onlineAt = it.onlineAt ?: curr.onlineAt)
       }
-      data = next
+      data[upd.id] = next
       curr to next
     }
     
@@ -108,8 +99,7 @@ object LiveSession {
   
   suspend fun remove(id: SessionId) {
     val (curr, next) = synchronized(this) {
-      val curr = data?.takeIf { it.id == id } ?: return
-      data = null
+      val curr = data.remove(id) ?: return
       val next = SessionData(
         id = curr.id,
         expiresAt = curr.expiresAt,
@@ -119,6 +109,8 @@ object LiveSession {
       )
       curr to next
     }
+    
+    // TODO Push remove event to cache
     
     coroutineScope { launch {
       StoredSession.addOrUpdate(StoredSessionData(
@@ -166,25 +158,28 @@ object SessionOnline {
 
 
 
-data class StalenessSessionData(
+
+data class SessionUsageData(
   val id: SessionId,
   val expiresAt: Instant,
   val accessedAt: Instant,
 ) {
   val staleAt = minOf(accessedAt + 3.minutes, expiresAt)
   companion object {
-    val identityComparator = Comparator<StalenessSessionData> { a, b -> a.id compareTo b.id }
-    val stalenessComparator = Comparator<StalenessSessionData> { a, b -> a.staleAt compareTo b.staleAt }
+    val identityComparator = Comparator<SessionUsageData> { a, b -> a.id compareTo b.id }
+    val stalenessComparator = Comparator<SessionUsageData> { a, b -> a.staleAt compareTo b.staleAt }
   }
 }
 
-object StaleSessions {
-  private val sortedMap = TreeMultimap.create<StalenessSessionData, StalenessSessionData>(
-    StalenessSessionData.stalenessComparator,
-    StalenessSessionData.identityComparator,
-  )
+object SessionUsage {
+  private val sortedMap = SessionUsageData.run {
+    TreeMultimap.create(stalenessComparator, identityComparator)
+  }
   
   
+  fun use(curr: SessionUsageData?, next: SessionUsageData?) {
+  
+  }
 }
 
 

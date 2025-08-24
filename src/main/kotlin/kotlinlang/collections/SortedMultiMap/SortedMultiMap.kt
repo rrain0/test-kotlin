@@ -1,7 +1,7 @@
 package kotlinlang.collections.SortedMultiMap
 
 import com.google.common.collect.TreeMultimap
-import com.rrain.util.base.number.mapZero
+import com.rrain.util.base.number.ifZero
 import java.util.UUID
 import kotlin.compareTo
 
@@ -10,7 +10,7 @@ data class P(val id: UUID, val x: Double, val y: Double) {
   companion object {
     val identityComparator = Comparator<P> { a, b -> a.id compareTo b.id }
     val coordinatesComparator = Comparator<P> { a, b ->
-      a.x compareTo b.x mapZero { a.y compareTo b.y }
+      a.x compareTo b.x ifZero { a.y compareTo b.y }
     }
   }
 }
