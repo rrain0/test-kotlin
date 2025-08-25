@@ -1,12 +1,14 @@
 package `event-engine`.`live-map`
 
-import com.google.common.collect.TreeMultimap
+import com.rrain.util.base.`date-time`.now
+import com.rrain.util.base.number.ifZero
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
+import java.util.TreeSet
 import java.util.UUID
 import kotlin.compareTo
 import kotlin.time.Duration.Companion.minutes
@@ -17,108 +19,142 @@ import kotlin.time.Duration.Companion.minutes
 typealias UserId = UUID
 typealias SessionId = UUID
 
-
-
-
-
 data class SessionData(
   val id: SessionId,
-  //val accessedAt: Instant,
   val expiresAt: Instant,
   val userId: UserId? = null,
   val onlineAt: Instant? = null,
   val online: Boolean = false,
-)
+) {
+  fun toStoredSessionData() = StoredSessionData(
+    id = id,
+    expiresAt = expiresAt,
+    userId = userId,
+    onlineAt = onlineAt,
+  )
+  fun toSessionDataInternal(accessedAt: Instant) = SessionDataInternal(
+    id = id,
+    accessedAt = now(),
+    expiresAt = expiresAt,
+    userId = userId,
+    onlineAt = onlineAt,
+    online = online,
+  )
+}
+
+
+
+
+
+data class SessionDataInternal(
+  val id: SessionId,
+  val accessedAt: Instant?,
+  val expiresAt: Instant,
+  val userId: UserId? = null,
+  val onlineAt: Instant? = null,
+  val online: Boolean = false,
+) {
+  val staleAt = minOf(accessedAt?.let { it + 3.minutes } ?: expiresAt, expiresAt)
+  
+  companion object {
+    val stalenessToIdComparator = Comparator<SessionDataInternal> { a, b ->
+      a.staleAt compareTo b.staleAt ifZero { a.id compareTo b.id }
+    }
+  }
+  
+  fun toSessionData() = SessionData(
+    id = id,
+    expiresAt = expiresAt,
+    userId = userId,
+    onlineAt = onlineAt,
+    online = online,
+  )
+}
+
 
 object LiveSession {
-  private val data: MutableMap<SessionId, SessionData> = mutableMapOf()
+  private val data: MutableMap<SessionId, SessionDataInternal> = mutableMapOf()
   
   suspend fun get(id: SessionId): SessionData? {
-    val curr = synchronized(this) { data[id] }
-    if (curr == null) {
+    val (curr0, next0) = synchronized(this) {
+      val curr0 = data[id]
+      val next0 = curr0?.let { curr0 ->
+        val next0 = curr0.copy(accessedAt = now())
+        data[id] = next0
+        next0
+      }
+      curr0 to next0
+    }
+    if (curr0 == null && next0 == null) {
       coroutineScope { launch {
         StoredSession.get(id)
-          ?.let { SessionData(
-            id = it.id,
-            expiresAt = it.expiresAt,
-            userId = it.userId,
-            onlineAt = it.onlineAt,
-            online = false,
-          ) }
+          ?.toSessionData(online = false)
           ?.let { stored -> add(stored) }
       } }
     }
-    if (curr != null) {
+    if (curr0 != null && next0 != null) {
+      val cachedPrev = curr0
+      val cachedNext = next0
       // TODO Push access event to cache
     }
-    return curr
+    
+    val next = next0?.toSessionData()
+    return next
   }
   
   // add if not exists by id
   suspend fun add(upd: SessionData) {
-    val (curr, next) = synchronized(this) {
-      val curr = data[upd.id]
-      val next = upd
-      curr ?: return
-      run {
-        data[upd.id] = next
-        val curr = SessionData(
-          id = upd.id,
-          expiresAt = upd.expiresAt,
-          userId = upd.userId,
-          onlineAt = null,
-          online = false,
-        )
-        curr to next
-      }
+    val (curr0, next0) = synchronized(this) {
+      val curr0 = data[upd.id]
+      if (curr0 != null) return
+      val next0 = upd.toSessionDataInternal(accessedAt = now())
+      data[upd.id] = next0
+      curr0 to next0
     }
     
+    val cachedPrev = curr0
+    val cachedNext = next0
     // TODO Push access event to cache
+    
+    val curr = upd.copy(onlineAt = null, online = false)
+    val next = upd
     
     SessionOnlineInner.tryEmit(curr, next)
   }
   
   suspend fun addOrUpdate(upd: SessionData) {
-    val (curr, next) = synchronized(this) {
-      val curr = data[upd.id] ?: SessionData(
-        id = upd.id,
-        expiresAt = upd.expiresAt,
-        userId = upd.userId,
-        onlineAt = null,
-        online = false,
-      )
-      val next = upd.let {
-        it.copy(onlineAt = it.onlineAt ?: curr.onlineAt)
-      }
-      data[upd.id] = next
-      curr to next
+    val (curr0, next0) = synchronized(this) {
+      val curr0 = data[upd.id]
+      val next0 = upd.toSessionDataInternal(accessedAt = now())
+        .copy(onlineAt = upd.onlineAt ?: curr0?.onlineAt)
+      data[upd.id] = next0
+      curr0 to next0
     }
+    
+    val cachedPrev = curr0
+    val cachedNext = next0
+    // TODO Push access event to cache
+    
+    val curr = curr0?.toSessionData()
+      ?: next0.toSessionData().copy(onlineAt = null, online = false)
+    val next = next0.toSessionData()
     
     SessionOnlineInner.tryEmit(curr, next)
   }
   
   suspend fun remove(id: SessionId) {
-    val (curr, next) = synchronized(this) {
-      val curr = data.remove(id) ?: return
-      val next = SessionData(
-        id = curr.id,
-        expiresAt = curr.expiresAt,
-        userId = curr.userId,
-        onlineAt = curr.onlineAt,
-        online = false,
-      )
-      curr to next
-    }
+    val curr0 = synchronized(this) { data.remove(id) } ?: return
+    val next0: SessionDataInternal? = null
     
-    // TODO Push remove event to cache
+    val cachedPrev = curr0
+    val cachedNext = next0
+    // TODO Push access event to cache
+    
+    val curr = curr0.toSessionData()
+    val next = curr.copy(online = false)
     
     coroutineScope { launch {
-      StoredSession.addOrUpdate(StoredSessionData(
-        id = next.id,
-        expiresAt = next.expiresAt,
-        userId = next.userId,
-        onlineAt = next.onlineAt,
-      ))
+      StoredSession.addOrUpdate(next.toStoredSessionData())
     } }
     SessionOnlineInner.tryEmit(curr, next)
   }
@@ -158,27 +194,11 @@ object SessionOnline {
 
 
 
-
-data class SessionUsageData(
-  val id: SessionId,
-  val expiresAt: Instant,
-  val accessedAt: Instant,
-) {
-  val staleAt = minOf(accessedAt + 3.minutes, expiresAt)
-  companion object {
-    val identityComparator = Comparator<SessionUsageData> { a, b -> a.id compareTo b.id }
-    val stalenessComparator = Comparator<SessionUsageData> { a, b -> a.staleAt compareTo b.staleAt }
-  }
-}
-
 // TODO
 object SessionUsage {
-  private val sortedMap = SessionUsageData.run {
-    TreeMultimap.create(stalenessComparator, identityComparator)
-  }
+  private val sortedSet = TreeSet(SessionDataInternal.stalenessToIdComparator)
   
-  
-  fun use(curr: SessionUsageData?, next: SessionUsageData?) {
+  fun use(curr: SessionDataInternal?, next: SessionDataInternal?) {
   
   }
 }
@@ -194,7 +214,15 @@ data class StoredSessionData(
   val expiresAt: Instant,
   val userId: UserId? = null,
   val onlineAt: Instant? = null,
-)
+) {
+  fun toSessionData(online: Boolean) = SessionData(
+    id = id,
+    expiresAt = expiresAt,
+    userId = userId,
+    onlineAt = onlineAt,
+    online = online,
+  )
+}
 
 object StoredSession {
   private val storedData: MutableMap<SessionId, StoredSessionData> = mutableMapOf()
@@ -207,12 +235,7 @@ object StoredSession {
   suspend fun addOrUpdate(upd: StoredSessionData) {
     delay(1234) // emulate async delay
     synchronized(this) {
-      val curr = storedData[upd.id] ?: StoredSessionData(
-        id = upd.id,
-        expiresAt = upd.expiresAt,
-        userId = upd.userId,
-        onlineAt = null,
-      )
+      val curr = storedData[upd.id] ?: upd.copy(onlineAt = null)
       val next = upd.let {
         it.copy(onlineAt = it.onlineAt ?: curr.onlineAt)
       }

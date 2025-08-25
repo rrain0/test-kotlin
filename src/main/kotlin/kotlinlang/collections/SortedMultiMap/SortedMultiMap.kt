@@ -6,6 +6,7 @@ import java.util.UUID
 import kotlin.compareTo
 
 
+
 data class P(val id: UUID, val x: Double, val y: Double) {
   companion object {
     val identityComparator = Comparator<P> { a, b -> a.id compareTo b.id }

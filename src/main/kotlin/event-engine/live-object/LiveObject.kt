@@ -24,7 +24,14 @@ data class SessionData(
   val userId: UserId? = null,
   val onlineAt: Instant? = null,
   val online: Boolean = false,
-)
+) {
+  fun toStoredSessionData() = StoredSessionData(
+    id = id,
+    expiresAt = expiresAt,
+    userId = userId,
+    onlineAt = onlineAt,
+  )
+}
 
 object LiveSession {
   // No need volatile because access is always synchronized.
@@ -47,13 +54,7 @@ object LiveSession {
     if (curr == null) {
       coroutineScope { launch {
         StoredSession.get(id)
-          ?.let { SessionData(
-            id = it.id,
-            expiresAt = it.expiresAt,
-            userId = it.userId,
-            onlineAt = it.onlineAt,
-            online = false,
-          ) }
+          ?.toSessionData(online = false)
           ?.let { stored -> add(stored) }
       } }
     }
@@ -62,20 +63,12 @@ object LiveSession {
   
   suspend fun add(upd: SessionData) {
     val (curr, next) = synchronized(this) {
-      val curr = data
+      var curr = data
       val next = upd
       if (curr?.id == upd.id) return
-      run {
-        data = next
-        val curr = SessionData(
-          id = upd.id,
-          expiresAt = upd.expiresAt,
-          userId = upd.userId,
-          onlineAt = null,
-          online = false,
-        )
-        curr to next
-      }
+      data = next
+      curr = upd.copy(onlineAt = null, online = false)
+      curr to next
     }
     
     SessionOnlineInner.tryEmit(curr, next)
@@ -83,16 +76,9 @@ object LiveSession {
   
   suspend fun addOrUpdate(upd: SessionData) {
     val (curr, next) = synchronized(this) {
-      val curr = data?.takeIf { it.id == upd.id } ?: SessionData(
-        id = upd.id,
-        expiresAt = upd.expiresAt,
-        userId = upd.userId,
-        onlineAt = null,
-        online = false,
-      )
-      val next = upd.let {
-        it.copy(onlineAt = it.onlineAt ?: curr.onlineAt)
-      }
+      val curr = data?.takeIf { it.id == upd.id }
+        ?: upd.copy(onlineAt = null, online = false)
+      val next = upd.copy(onlineAt = upd.onlineAt ?: curr.onlineAt)
       data = next
       curr to next
     }
@@ -104,23 +90,12 @@ object LiveSession {
     val (curr, next) = synchronized(this) {
       val curr = data?.takeIf { it.id == id } ?: return
       data = null
-      val next = SessionData(
-        id = curr.id,
-        expiresAt = curr.expiresAt,
-        userId = curr.userId,
-        onlineAt = curr.onlineAt,
-        online = false,
-      )
+      val next = curr.copy(online = false)
       curr to next
     }
     
     coroutineScope { launch {
-      StoredSession.addOrUpdate(StoredSessionData(
-        id = next.id,
-        expiresAt = next.expiresAt,
-        userId = next.userId,
-        onlineAt = next.onlineAt,
-      ))
+      StoredSession.addOrUpdate(next.toStoredSessionData())
     } }
     SessionOnlineInner.tryEmit(curr, next)
   }
@@ -169,7 +144,15 @@ data class StoredSessionData(
   val expiresAt: Instant,
   val userId: UserId? = null,
   val onlineAt: Instant? = null,
-)
+) {
+  fun toSessionData(online: Boolean) = SessionData(
+    id = id,
+    expiresAt = expiresAt,
+    userId = userId,
+    onlineAt = onlineAt,
+    online = online,
+  )
+}
 
 object StoredSession {
   private var storedData: StoredSessionData? = null
@@ -184,12 +167,7 @@ object StoredSession {
   suspend fun addOrUpdate(upd: StoredSessionData) {
     delay(1234) // emulate async delay
     synchronized(this) {
-      val curr = storedData?.takeIf { it.id == upd.id } ?: StoredSessionData(
-        id = upd.id,
-        expiresAt = upd.expiresAt,
-        userId = upd.userId,
-        onlineAt = null,
-      )
+      val curr = storedData?.takeIf { it.id == upd.id } ?: upd.copy(onlineAt = null)
       val next = upd.let {
         it.copy(onlineAt = it.onlineAt ?: curr.onlineAt)
       }
