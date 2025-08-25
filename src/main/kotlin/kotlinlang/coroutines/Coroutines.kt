@@ -76,7 +76,7 @@ fun main() {
   ● withContext(context)
   
   ⚠️ Note that you need to manually stop thread pool:
-  Executors.newCachedThreadPool().use { runBlocking(it.asCoroutineDispatcher()) { ... } }
+  Executors.newCachedThreadPool().use { exec -> runBlocking(exec.asCoroutineDispatcher()) { ... } }
   
   You can change execution context on the fly, but need to avoid concurrent modification errors.
  */

@@ -61,6 +61,13 @@ dependencies {
   // https://mvnrepository.com/artifact/com.google.guava/guava
   implementation("com.google.guava:guava:33.4.8-jre")
   
+  // Caffeine cache
+  // https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine
+  implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")
+  // Caffeine-coroutines
+  // https://mvnrepository.com/artifact/dev.hsbrysk/caffeine-coroutines
+  implementation("dev.hsbrysk:caffeine-coroutines:2.0.2")
+  
   
   
   // https://central.sonatype.com/artifact/io.github.xn32/json5k

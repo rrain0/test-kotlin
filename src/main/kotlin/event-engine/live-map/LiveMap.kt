@@ -2,7 +2,9 @@ package `event-engine`.`live-map`
 
 import com.rrain.util.base.`date-time`.now
 import com.rrain.util.base.number.ifZero
+import com.rrain.util.base.print.println
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -11,13 +13,23 @@ import kotlinx.datetime.Instant
 import java.util.TreeSet
 import java.util.UUID
 import kotlin.compareTo
+import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 
 
 
 typealias UserId = UUID
 typealias SessionId = UUID
+
+
+
+suspend fun initSessionStorage() {
+  UnusedSessionsInternal.runCleaner()
+}
+
+
 
 data class SessionData(
   val id: SessionId,
@@ -48,17 +60,17 @@ data class SessionData(
 
 data class SessionDataInternal(
   val id: SessionId,
-  val accessedAt: Instant?,
+  val accessedAt: Instant,
   val expiresAt: Instant,
   val userId: UserId? = null,
   val onlineAt: Instant? = null,
   val online: Boolean = false,
 ) {
-  val staleAt = minOf(accessedAt?.let { it + 3.minutes } ?: expiresAt, expiresAt)
+  val unusedAt = accessedAt + 1.5.seconds
   
   companion object {
-    val stalenessToIdComparator = Comparator<SessionDataInternal> { a, b ->
-      a.staleAt compareTo b.staleAt ifZero { a.id compareTo b.id }
+    val unusedToIdComparator = Comparator<SessionDataInternal> { a, b ->
+      a.unusedAt compareTo b.unusedAt ifZero { a.id compareTo b.id }
     }
   }
   
@@ -72,7 +84,7 @@ data class SessionDataInternal(
 }
 
 
-object LiveSession {
+object LiveSessions {
   private val data: MutableMap<SessionId, SessionDataInternal> = mutableMapOf()
   
   suspend fun get(id: SessionId): SessionData? {
@@ -87,15 +99,13 @@ object LiveSession {
     }
     if (curr0 == null && next0 == null) {
       coroutineScope { launch {
-        StoredSession.get(id)
+        StoredSessions.get(id)
           ?.toSessionData(online = false)
           ?.let { stored -> add(stored) }
       } }
     }
     if (curr0 != null && next0 != null) {
-      val cachedPrev = curr0
-      val cachedNext = next0
-      // TODO Push access event to cache
+      UnusedSessionsInternal.use(curr0, next0)
     }
     
     val next = next0?.toSessionData()
@@ -112,14 +122,12 @@ object LiveSession {
       curr0 to next0
     }
     
-    val cachedPrev = curr0
-    val cachedNext = next0
-    // TODO Push access event to cache
+    UnusedSessionsInternal.use(curr0, next0)
     
     val curr = upd.copy(onlineAt = null, online = false)
     val next = upd
     
-    SessionOnlineInner.tryEmit(curr, next)
+    OnlineSessionsInternal.tryEmit(curr, next)
   }
   
   suspend fun addOrUpdate(upd: SessionData) {
@@ -131,32 +139,28 @@ object LiveSession {
       curr0 to next0
     }
     
-    val cachedPrev = curr0
-    val cachedNext = next0
-    // TODO Push access event to cache
+    UnusedSessionsInternal.use(curr0, next0)
     
     val curr = curr0?.toSessionData()
       ?: next0.toSessionData().copy(onlineAt = null, online = false)
     val next = next0.toSessionData()
     
-    SessionOnlineInner.tryEmit(curr, next)
+    OnlineSessionsInternal.tryEmit(curr, next)
   }
   
   suspend fun remove(id: SessionId) {
     val curr0 = synchronized(this) { data.remove(id) } ?: return
     val next0: SessionDataInternal? = null
     
-    val cachedPrev = curr0
-    val cachedNext = next0
-    // TODO Push access event to cache
+    UnusedSessionsInternal.use(curr0, next0)
     
     val curr = curr0.toSessionData()
     val next = curr.copy(online = false)
     
     coroutineScope { launch {
-      StoredSession.addOrUpdate(next.toStoredSessionData())
+      StoredSessions.addOrUpdate(next.toStoredSessionData())
     } }
-    SessionOnlineInner.tryEmit(curr, next)
+    OnlineSessionsInternal.tryEmit(curr, next)
   }
 }
 
@@ -167,7 +171,7 @@ object LiveSession {
 interface SessionEv
 data class SessionOnlineEv(val data: SessionData) : SessionEv
 
-private object SessionOnlineInner {
+private object OnlineSessionsInternal {
   // Flow to push updates
   private val flow = MutableSharedFlow<SessionOnlineEv>()
   val events = flow.asSharedFlow()
@@ -188,18 +192,69 @@ private object SessionOnlineInner {
   }
 }
 
-object SessionOnline {
-  val events by SessionOnlineInner::events
+object OnlineSessions {
+  val events by OnlineSessionsInternal::events
 }
 
 
 
 // TODO
-object SessionUsage {
-  private val sortedSet = TreeSet(SessionDataInternal.stalenessToIdComparator)
+//  Что если конкуррентно тут обновляются данные и новый апдейт пришёл раньше старого,
+//  тогда старый апдейт запишется, новый к тому ыремени уже проскипался и всё, гг
+private object UnusedSessionsInternal {
+  private val set = mutableSetOf<SessionId>()
+  private val sortedSet = TreeSet(SessionDataInternal.unusedToIdComparator)
   
-  fun use(curr: SessionDataInternal?, next: SessionDataInternal?) {
+  private val updateEvents = MutableSharedFlow<Unit>()
   
+  suspend fun use(curr: SessionDataInternal?, next: SessionDataInternal?) {
+    val updateJob = synchronized(this) {
+      val hasThisCurr = if (curr != null) sortedSet.contains(curr)
+        else if (next != null) !set.contains(next.id)
+        else false
+      if (hasThisCurr) {
+        val firstCurr = sortedSet.firstOrNull()
+        
+        curr?.let {
+          set.remove(it.id)
+          sortedSet.remove(it)
+        }
+        next?.let {
+          set.add(next.id)
+          sortedSet.add(it)
+        }
+        println("use  curr: $curr, next: $next")
+        
+        val firstNext = sortedSet.firstOrNull()
+        firstCurr?.unusedAt != firstNext?.unusedAt
+      }
+      else false
+    }
+    
+    if (updateJob) updateEvents.emit(Unit)
+  }
+  
+  suspend fun runCleaner(): Nothing = coroutineScope {
+    // TODO мб ещё обернуть в while (true) на случай неожиданного отъёба внутри
+    val runWaiterCleaner = suspend { coroutineScope { launch {
+      while (true) {
+        val firstUnusedAt = synchronized(this) { sortedSet.firstOrNull() }?.unusedAt
+        firstUnusedAt ?: break
+        
+        delay(firstUnusedAt - now())
+        
+        val item = synchronized(this) { sortedSet.firstOrNull() }
+        if (item != null && item.unusedAt <= now()) {
+          LiveSessions.remove(item.id)
+        }
+      }
+    } } }
+    
+    var waiterCleanerJob = runWaiterCleaner()
+    updateEvents.collect {
+      waiterCleanerJob.cancel()
+      waiterCleanerJob = runWaiterCleaner()
+    }
   }
 }
 
@@ -224,7 +279,7 @@ data class StoredSessionData(
   )
 }
 
-object StoredSession {
+object StoredSessions {
   private val storedData: MutableMap<SessionId, StoredSessionData> = mutableMapOf()
   
   suspend fun get(id: SessionId): StoredSessionData? {
