@@ -55,7 +55,7 @@ class WithExtensionProperties{
 val WithExtensionProperties.extProp get() = 6
 var WithExtensionProperties.propCode
   get() = this.prop.code
-  set(charCode: Int){ this.prop = charCode.toChar() }
+  set(charCode: Int) { this.prop = charCode.toChar() }
 var WithExtensionProperties.propNewName by WithExtensionProperties::prop
 
 

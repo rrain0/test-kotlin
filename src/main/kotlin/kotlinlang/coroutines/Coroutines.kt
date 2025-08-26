@@ -132,13 +132,20 @@ fun main() {
       unlike runBlocking - does not block the thread, only suspends it.
       Например если coroutineScope { launch { ... } }, то coroutineScope не завершится,
       пока job из этого launch не завершится.
+      
+  ● CoroutineScope(Executors.newCachedThreadPool().asCoroutineDispatcher()).launch { }
+      If you don't need to wait for coroutineScope { } to completes all underlying task,
+      you can create new coroutine scope and run coroutine by it in background.
 
   ● withContext(context) { } -> block result:
       Calls the specified suspending block with a given coroutine context,
       suspends until it completes, and returns the result.
           withContext(NonCancelable)
           withContext(Dispatchers.IO)
+  ● withContext(NonCancellable) { }
+*/
 
+/*
   ● launch { } -> Job:
       launch is a coroutine builder.
       It launches a new coroutine concurrently with the rest of the code,
