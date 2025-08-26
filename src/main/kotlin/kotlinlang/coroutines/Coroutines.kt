@@ -146,6 +146,9 @@ fun main() {
 */
 
 /*
+  Coroutine builders.
+  They are not suspending functions.
+  They are executed on CoroutineScope.
   ● launch { } -> Job:
       launch is a coroutine builder.
       It launches a new coroutine concurrently with the rest of the code,
@@ -156,7 +159,9 @@ fun main() {
 
   ● async { } -> Deferred:
       it is like launch { }, but returns result value.
+*/
 
+/*
   ● delay(<time millis>):
       is a special suspending function. It suspends the coroutine for a specific time.
       Suspending a coroutine does not block the underlying thread,

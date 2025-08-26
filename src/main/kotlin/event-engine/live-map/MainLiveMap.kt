@@ -41,7 +41,7 @@ fun liveObject() = Executors.newCachedThreadPool().use { runBlocking(it.asCorout
     userId = randomUuid(),
   )
   
-  launch { UnusedSessions.events.collect {
+  launch { SessionsUsageShared.events.collect {
     println("\nCACHE event: $it\n")
   } }
   

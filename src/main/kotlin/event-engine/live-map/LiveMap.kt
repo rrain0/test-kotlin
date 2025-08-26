@@ -7,6 +7,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -36,8 +37,10 @@ fun initSessionStorage(
     bgScope = bgScope,
     cacheLifetime = cacheLifetime,
   )
-  UnusedSessions.runCleaner()
+  SessionsUsage.runCleaner()
 }
+
+
 
 
 
@@ -56,12 +59,8 @@ data class SessionData(
   )
 }
 
-
-
-
-
 object LiveSessions {
-  private val data: MutableMap<SessionId, SessionData> = mutableMapOf()
+  private val data = mutableMapOf<SessionId, SessionData>()
   
   suspend fun get(id: SessionId): SessionData? {
     val curr = data[id]
@@ -74,7 +73,9 @@ object LiveSessions {
       }
     }
     
-    if (curr != null) UnusedSessions.addOrUpdate(curr)
+    if (curr != null) {
+      SessionsUsage.addOrUpdate(curr)
+    }
     
     return curr
   }
@@ -82,15 +83,17 @@ object LiveSessions {
   // add if not exists by id
   suspend fun add(upd: SessionData) {
     synchronized(this) {
-      if (data.contains(upd.id)) return
+      if (upd.id in data) return
       data[upd.id] = upd
     }
     
     val curr = upd.copy(onlineAt = null, online = false)
     val next = upd
     
-    UnusedSessions.addOrUpdate(next)
-    OnlineSessions.tryEmit(curr, next)
+    SessionsUsage.addOrUpdate(next)
+    withContext(NonCancellable) {
+      OnlineSessions.tryEmitEvent(curr, next)
+    }
   }
   
   suspend fun addOrUpdate(upd: SessionData) {
@@ -104,36 +107,41 @@ object LiveSessions {
     val curr = curr0 ?: next0.copy(onlineAt = null, online = false)
     val next = next0
     
-    UnusedSessions.addOrUpdate(next)
-    OnlineSessions.tryEmit(curr, next)
+    SessionsUsage.addOrUpdate(next)
+    withContext(NonCancellable) {
+      OnlineSessions.tryEmitEvent(curr, next)
+    }
   }
   
   suspend fun remove(id: SessionId) {
     val curr = synchronized(this) { data.remove(id) } ?: return
     val next = curr.copy(online = false)
     
-    UnusedSessions.remove(next.id)
+    SessionsUsage.remove(next.id)
     
     config.bgScope.launch {
       StoredSessions.addOrUpdate(next.toStoredSessionData())
     }
-    OnlineSessions.tryEmit(curr, next)
+    
+    withContext(NonCancellable) {
+      OnlineSessions.tryEmitEvent(curr, next)
+    }
   }
+  
+  // TODO listen UNUSED event from cache and try remove.
 }
 
 
 
 
 
-interface SessionEv
-data class SessionOnlineEv(val data: SessionData) : SessionEv
+data class SessionOnlineEv(val data: SessionData)
 
 private object OnlineSessions {
-  // Flow to push updates
   private val flow = MutableSharedFlow<SessionOnlineEv>()
   val events = flow.asSharedFlow()
   
-  suspend fun tryEmit(curr: SessionData, next: SessionData) {
+  suspend fun tryEmitEvent(curr: SessionData, next: SessionData) {
     val onlineChange = (
       // Изменился сам статус онлайн.
       (curr.online != next.online) ||
@@ -158,11 +166,9 @@ object OnlineSessionsShared {
 
 
 
-enum class CacheEvType { ADD, UPDATE, REMOVE, EXPIRED }
-data class CacheEv(
-  val type: CacheEvType,
-  val data: SessionUsageData,
-)
+
+enum class CacheEvType { ADD, UPDATE, REMOVE, UNUSED }
+data class CacheEv(val type: CacheEvType, val data: SessionUsageData)
 
 data class SessionUsageData(
   val id: SessionId,
@@ -174,12 +180,10 @@ data class SessionUsageData(
     online -> expiresAt
     else -> minOf(expiresAt, accessedAt + config.cacheLifetime)
   }
-  
   override fun compareTo(other: SessionUsageData) =
     unusedAt.compareTo(other.unusedAt)
       .ifZero { id.compareTo(other.id) }
 }
-
 fun SessionData.toSessionUsageData(accessedAt: Instant = now()) = SessionUsageData(
   id = id,
   accessedAt = accessedAt,
@@ -187,7 +191,7 @@ fun SessionData.toSessionUsageData(accessedAt: Instant = now()) = SessionUsageDa
   online = online,
 )
 
-object UnusedSessions {
+private object SessionsUsage {
   private val map = mutableMapOf<SessionId, SessionUsageData>()
   private val sorted = TreeSet<SessionUsageData>()
   
@@ -228,8 +232,7 @@ object UnusedSessions {
     var ev: CacheEv? = null
     synchronized(this) {
       // Remove entry
-      val curr = map.remove(id)
-      curr ?: return
+      val curr = map.remove(id) ?: return
       sorted.remove(curr)
       ev = CacheEv(CacheEvType.REMOVE, curr)
     }
@@ -242,9 +245,9 @@ object UnusedSessions {
   
   fun runCleaner() {
     config.bgScope.launch {
-      while (true) {
+      while (isActive) {
         val runWaiterCleaner = suspend { launch {
-          while (true) {
+          while (isActive) {
             val firstUnusedAt = synchronized(this) { sorted.firstOrNull() }?.unusedAt
             firstUnusedAt ?: break
             
@@ -260,7 +263,7 @@ object UnusedSessions {
             }
             
             withContext(NonCancellable) {
-               if (item != null) updates.emit(CacheEv(CacheEvType.EXPIRED, item))
+               if (item != null) updates.emit(CacheEv(CacheEvType.UNUSED, item))
             }
           }
         } }
@@ -275,11 +278,15 @@ object UnusedSessions {
   }
 }
 
+object SessionsUsageShared {
+  val events by SessionsUsage::events
+}
 
 
 
 
-// Сессии онлайн, хранятся в оперативке.
+
+// Сессии онлайн хранятся в оперативке.
 // Сессии оффлайн будут в БД. Или не будут, если о них ещё нет данных
 data class StoredSessionData(
   val id: SessionId,
@@ -297,7 +304,7 @@ data class StoredSessionData(
 }
 
 object StoredSessions {
-  private val storedData: MutableMap<SessionId, StoredSessionData> = mutableMapOf()
+  private val storedData = mutableMapOf<SessionId, StoredSessionData>()
   
   suspend fun get(id: SessionId): StoredSessionData? {
     delay(1234) // emulate async delay
@@ -308,9 +315,7 @@ object StoredSessions {
     delay(1234) // emulate async delay
     synchronized(this) {
       val curr = storedData[upd.id] ?: upd.copy(onlineAt = null)
-      val next = upd.let {
-        it.copy(onlineAt = it.onlineAt ?: curr.onlineAt)
-      }
+      val next = upd.copy(onlineAt = upd.onlineAt ?: curr.onlineAt)
       storedData[upd.id] = next
     }
   }
