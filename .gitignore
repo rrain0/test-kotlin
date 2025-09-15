@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 
 
+/src/files/private/
 /src/main/resources/private/
 
 
