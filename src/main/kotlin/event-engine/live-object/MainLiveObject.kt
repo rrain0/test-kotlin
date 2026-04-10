@@ -1,7 +1,7 @@
 package `event-engine`.`live-object`
 
-import com.rrain.util.base.`date-time`.now
-import com.rrain.util.base.uuid.randomUuid
+import com.rrain.utils.base.`date-time`.now
+import com.rrain.utils.base.uuid.randomUuid
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay

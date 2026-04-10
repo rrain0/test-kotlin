@@ -1,4 +1,4 @@
-import com.rrain.util.base.json.createJacksonJsonMapper
+import com.rrain.utils.base.json.createJacksonJsonMapper
 import kotlin.system.measureTimeMillis
 import kotlin.time.TimeSource
 

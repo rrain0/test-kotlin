@@ -96,6 +96,7 @@ dependencies {
   implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
   
   
+  // Jackson JSON
   val jacksonV = "2.18.2"
   implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonV")
   // Kotlin Jackson Support
@@ -104,6 +105,11 @@ dependencies {
   // Java Time Jackson Support
   // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonV")
+  
+  
+  // OpenCSV CSV
+  // https://mvnrepository.com/artifact/com.opencsv/opencsv
+  implementation("com.opencsv:opencsv:5.12.0")
   
   
 

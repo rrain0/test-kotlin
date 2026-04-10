@@ -1,6 +1,6 @@
 package kotlinlang.regexp.`batch-file-rename`
 
-import com.rrain.util.base.string.dot
+import com.rrain.utils.base.string.dot
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path

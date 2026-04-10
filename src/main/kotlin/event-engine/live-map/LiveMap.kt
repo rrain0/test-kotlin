@@ -1,7 +1,8 @@
 package `event-engine`.`live-map`
 
-import com.rrain.util.base.`date-time`.now
-import com.rrain.util.base.number.ifZero
+import com.rrain.utils.base.`date-time`.isExpired
+import com.rrain.utils.base.`date-time`.now
+import com.rrain.utils.base.number.ifZero
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
@@ -19,8 +20,11 @@ import kotlin.time.Duration.Companion.minutes
 
 
 
+
 typealias UserId = UUID
 typealias SessionId = UUID
+
+
 
 
 data class SessionsConfig(
@@ -37,6 +41,7 @@ fun initSessionStorage(
     bgScope = bgScope,
     cacheLifetime = cacheLifetime,
   )
+  LiveSessions.runUnusedCleaner()
   SessionsUsage.runCleaner()
 }
 
@@ -51,6 +56,7 @@ data class SessionData(
   val onlineAt: Instant? = null,
   val online: Boolean = false,
 ) {
+  val unused get() = expiresAt.isExpired() || !online
   fun toStoredSessionData() = StoredSessionData(
     id = id,
     expiresAt = expiresAt,
@@ -59,7 +65,7 @@ data class SessionData(
   )
 }
 
-object LiveSessions {
+private object LiveSessions {
   private val data = mutableMapOf<SessionId, SessionData>()
   
   suspend fun get(id: SessionId): SessionData? {
@@ -113,8 +119,9 @@ object LiveSessions {
     }
   }
   
-  suspend fun remove(id: SessionId) {
+  suspend fun remove(id: SessionId, removeOnlyUnused: Boolean = false) {
     val curr = synchronized(this) { data.remove(id) } ?: return
+    if (removeOnlyUnused && !curr.unused) return
     val next = curr.copy(online = false)
     
     SessionsUsage.remove(next.id)
@@ -128,7 +135,23 @@ object LiveSessions {
     }
   }
   
-  // TODO listen UNUSED event from cache and try remove.
+  fun runUnusedCleaner() {
+    config.bgScope.launch {
+      while (isActive) SessionsUsage.events.collect {
+        if (it.type === CacheEvType.UNUSED) {
+          val id = it.data.id
+          remove(id, removeOnlyUnused = true)
+        }
+      }
+    }
+  }
+}
+
+object LiveSessionsShared {
+  suspend fun get(id: SessionId) = LiveSessions.get(id)
+  suspend fun add(upd: SessionData) = LiveSessions.add(upd)
+  suspend fun addOrUpdate(upd: SessionData) = LiveSessions.addOrUpdate(upd)
+  suspend fun remove(id: SessionId) = LiveSessions.remove(id)
 }
 
 
@@ -138,7 +161,7 @@ object LiveSessions {
 data class SessionOnlineEv(val data: SessionData)
 
 private object OnlineSessions {
-  private val flow = MutableSharedFlow<SessionOnlineEv>()
+  private val flow = MutableSharedFlow<SessionOnlineEv>(extraBufferCapacity = 1)
   val events = flow.asSharedFlow()
   
   suspend fun tryEmitEvent(curr: SessionData, next: SessionData) {
@@ -176,7 +199,7 @@ data class SessionUsageData(
   val expiresAt: Instant,
   val online: Boolean,
 ) : Comparable<SessionUsageData> {
-  val unusedAt = when {
+  val unusedAt get() = when {
     online -> expiresAt
     else -> minOf(expiresAt, accessedAt + config.cacheLifetime)
   }
@@ -195,7 +218,7 @@ private object SessionsUsage {
   private val map = mutableMapOf<SessionId, SessionUsageData>()
   private val sorted = TreeSet<SessionUsageData>()
   
-  private val updates = MutableSharedFlow<CacheEv>()
+  private val updates = MutableSharedFlow<CacheEv>(extraBufferCapacity = 1)
   val events = updates.asSharedFlow()
   
   suspend fun addOrUpdate(upd: SessionData) {
@@ -308,14 +331,15 @@ object StoredSessions {
   
   suspend fun get(id: SessionId): StoredSessionData? {
     delay(1234) // emulate async delay
-    return synchronized(this) { storedData[id] }
+    val curr = synchronized(this) { storedData[id] }
+    return curr
   }
   
   suspend fun addOrUpdate(upd: StoredSessionData) {
     delay(1234) // emulate async delay
     synchronized(this) {
-      val curr = storedData[upd.id] ?: upd.copy(onlineAt = null)
-      val next = upd.copy(onlineAt = upd.onlineAt ?: curr.onlineAt)
+      val curr = storedData[upd.id]
+      val next = upd.copy(onlineAt = upd.onlineAt ?: curr?.onlineAt)
       storedData[upd.id] = next
     }
   }

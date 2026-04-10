@@ -3,9 +3,9 @@ package `event-engine`.`live-map`
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.Expiry
 import com.github.benmanes.caffeine.cache.RemovalCause
-import com.rrain.util.base.`date-time`.now
-import com.rrain.util.base.uuid.randomUuid
-import com.rrain.util.base.uuid.toUuid
+import com.rrain.utils.base.`date-time`.now
+import com.rrain.utils.base.uuid.randomUuid
+import com.rrain.utils.base.uuid.toUuid
 import dev.hsbrysk.caffeine.buildCoroutine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -55,39 +55,39 @@ fun liveObject() = Executors.newCachedThreadPool().use { runBlocking(it.asCorout
   launch {
     delay(1000)
     session1.copy(onlineAt = now(), online = true).let {
-      println("addOrUpdateSession: $it")
-      LiveSessions.addOrUpdate(it)
+      println("PRODUCER addOrUpdateSession: $it")
+      LiveSessionsShared.addOrUpdate(it)
     }
     
     delay(1000)
     session1.copy(onlineAt = now(), online = true).let {
-      println("addOrUpdateSession: $it")
-      LiveSessions.addOrUpdate(it)
+      println("PRODUCER addOrUpdateSession: $it")
+      LiveSessionsShared.addOrUpdate(it)
     }
     
     delay(2000)
     // Здесь мы сообщаем, что перестали быть онлайн в момент onlineAt
     session1.copy(onlineAt = now(), online = false).let {
-      println("addOrUpdateSession: $it")
-      LiveSessions.addOrUpdate(it)
+      println("PRODUCER addOrUpdateSession: $it")
+      LiveSessionsShared.addOrUpdate(it)
     }
     
     delay(2000)
     session1.copy(onlineAt = now(), online = true).let {
-      println("addOrUpdateSession: $it")
-      LiveSessions.addOrUpdate(it)
+      println("PRODUCER addOrUpdateSession: $it")
+      LiveSessionsShared.addOrUpdate(it)
     }
     
     delay(1000)
     // Здесь мы сообщаем, что перестали быть онлайн.
     // В какой момент - неизвестно, так что onlineAt не передаём.
-    println("removeSession: ${session1.id}")
-    LiveSessions.remove(session1.id)
+    println("PRODUCER removeSession: ${session1.id}")
+    LiveSessionsShared.remove(session1.id)
     
     delay(1000)
     session1.copy(onlineAt = now(), online = true).let {
-      println("addOrUpdateSession: $it")
-      LiveSessions.addOrUpdate(it)
+      println("PRODUCER addOrUpdateSession: $it")
+      LiveSessionsShared.addOrUpdate(it)
     }
   }
   
@@ -102,12 +102,14 @@ fun liveObject() = Executors.newCachedThreadPool().use { runBlocking(it.asCorout
       
       // sharedFlow.collect guarantees to subscribe immediately and to be ready to receive emissions.
       OnlineSessionsShared.events.collect {
-        println("onSessionOnlineUpdate[0][${cnt.getAndIncrement()}]: $it")
+        println("CONSUMER onSessionOnlineUpdate[0][${cnt.getAndIncrement()}]: $it")
       }
     }
     
     // In any case get current state, and then it will be updated via SharedFlow.
-    println("onSessionOnlineUpdate[0][${cnt.getAndIncrement()}]: ${LiveSessions.get(session1.id)}")
+    println("CONSUMER onSessionOnlineUpdate[0][${cnt.getAndIncrement()}]: ${
+      LiveSessionsShared.get(session1.id)
+    }")
   }
   
   launch {
@@ -116,11 +118,13 @@ fun liveObject() = Executors.newCachedThreadPool().use { runBlocking(it.asCorout
     val cnt = AtomicInteger(0)
     launch(start = CoroutineStart.UNDISPATCHED) {
       OnlineSessionsShared.events.collect {
-        println("onSessionOnlineUpdate[1][${cnt.getAndIncrement()}]: $it")
+        println("CONSUMER onSessionOnlineUpdate[1][${cnt.getAndIncrement()}]: $it")
       }
     }
     
-    println("onSessionOnlineUpdate[1][${cnt.getAndIncrement()}]: ${LiveSessions.get(session1.id)}")
+    println("CONSUMER onSessionOnlineUpdate[1][${cnt.getAndIncrement()}]: ${
+      LiveSessionsShared.get(session1.id)
+    }")
   }
 } }
 
